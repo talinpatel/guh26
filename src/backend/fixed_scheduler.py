@@ -1,144 +1,51 @@
-"""MVP: fixed events (hard) + day preferences (soft) -> CP-SAT -> .ics
+"""MVP scheduler: fixed events (.ics) + LLM constraints (schema.json) -> CP-SAT -> .ics
 
-Usage: python fixed_scheduler.py input.ics output.ics [prefs.json]
-prefs.json (LLM-generated), e.g.
-  {"day_pref": {"mon": 10, "tue": 3, "wed": 3, "thu": 3, "fri": 3, "sat": 0, "sun": null},
-   "min_hours": 10, "max_hours": 15}
-day_pref: cost per work slot on that day (0 = preferred, higher = avoid, null = never)
+Usage: python fixed_scheduler.py input.ics output.ics constraints.json
+Constraint types: avoid, hours, shift, earn. No weight = hard; weight = soft.
+Objective: minimise soft penalties + hours worked (so it works only what's needed).
 """
 import json
 import sys
-from datetime import datetime, timedelta, timezone
+from datetime import date, datetime, timedelta, timezone
 
 from icalendar import Calendar, Event
 from ortools.sat.python import cp_model
 
-EPOCH = datetime(1970, 1, 1, tzinfo=timezone.utc)
 DAYS = ["mon", "tue", "wed", "thu", "fri", "sat", "sun"]
-SLOT = 30                      # minutes per slot
-SLOTS = 24 * 60 // SLOT        # 48 per day
-WINDOW = (8 * 60 // SLOT, 22 * 60 // SLOT)  # work allowed 08:00-22:00
-MAX_DAILY_HOURS = 8
-MIN_SHIFT_HOURS = 2
-DEFAULT_PREFS = {"day_pref": {d: 1 for d in DAYS}, "min_hours": 10, "max_hours": 15}
+SLOT = 30                     # minutes
+SPD = 24 * 60 // SLOT         # slots per day
+WORK_WINDOW = ("08:00", "22:00")  # hard default
+DEFAULT_RATE = 12.0
+DEFAULT_SHIFT = {"type": "shift", "label": "default shift shape", "min_h": 2, "max_per_day": 2}
 
 
-def to_min(dt):  # aware datetime -> minutes since epoch (UTC)
-    return int((dt.astimezone(timezone.utc) - EPOCH).total_seconds() // 60)
+def slot_of(t):  # "HH:MM" -> slot index
+    h, m = map(int, t.split(":"))
+    return (h * 60 + m) // SLOT
 
 
+def n_slots(hours):
+    return int(round(hours * 60 / SLOT))
+
+
+# ---------- calendar I/O ----------
 def load_events(path):
     cal = Calendar.from_ical(open(path, "rb").read())
     events = []
     for comp in cal.walk("VEVENT"):
         start = comp.decoded("DTSTART")
         if not isinstance(start, datetime):
-            continue  # all-day events: passed through untouched
+            continue  # all-day events passed through
         if start.tzinfo is None:
             start = start.replace(tzinfo=timezone.utc)
         end = comp.decoded("DTEND") if "DTEND" in comp else start + comp.decoded("DURATION")
         if end.tzinfo is None:
             end = end.replace(tzinfo=timezone.utc)
-        events.append({"uid": str(comp.get("UID")), "comp": comp,
-                       "start": start, "end": end, "tz": start.tzinfo})
+        events.append({"start": start, "end": end})
     return cal, events
 
 
-def build_constraints(events, prefs):
-    # Every input event is essential -> a hard "fixed" constraint.
-    cons = [{"type": "fixed", "uid": e["uid"],
-             "start": to_min(e["start"]), "end": to_min(e["end"])} for e in events]
-    cons.append({"type": "hours", "min": prefs["min_hours"], "max": prefs["max_hours"]})
-    for day, w in prefs["day_pref"].items():
-        cons.append({"type": "day_pref", "day": DAYS.index(day), "weight": w})
-    return cons
-
-
-def slot_start(week0, d, s):
-    return week0 + timedelta(days=d, minutes=s * SLOT)
-
-
-def solve(events, constraints, week0):
-    m = cp_model.CpModel()
-    lo = min(to_min(e["start"]) for e in events)
-    hi = max(to_min(e["end"]) for e in events)
-
-    # Fixed events: interval vars pinned to their original start.
-    fixed = {}
-    for e in events:
-        dur = to_min(e["end"]) - to_min(e["start"])
-        s = m.NewIntVar(lo, hi, f"s_{e['uid']}")
-        fixed[e["uid"]] = s
-        m.NewIntervalVar(s, dur, s + dur, f"i_{e['uid']}")
-
-    # Work grid: work[d, s] = 1 if working in that 30-min slot.
-    work = {(d, s): m.NewBoolVar(f"w{d}_{s}") for d in range(7) for s in range(SLOTS)}
-    for (d, s), w in work.items():
-        a = to_min(slot_start(week0, d, s))
-        if not WINDOW[0] <= s < WINDOW[1] or any(
-                a < to_min(e["end"]) and to_min(e["start"]) < a + SLOT for e in events):
-            m.Add(w == 0)  # outside window or overlaps a lecture
-
-    # One contiguous shift per day, capped length.
-    for d in range(7):
-        starts = [m.NewBoolVar(f"st{d}_{s}") for s in range(SLOTS)]
-        for s in range(SLOTS):
-            prev = work[d, s - 1] if s else 0
-            m.Add(starts[s] >= work[d, s] - prev)
-        m.Add(sum(starts) <= 1)
-        for s in range(SLOTS):  # a shift starting at s lasts >= MIN_SHIFT
-            for k in range(MIN_SHIFT_HOURS * 60 // SLOT):
-                if s + k < SLOTS:
-                    m.Add(work[d, s + k] == 1).OnlyEnforceIf(starts[s])
-                else:
-                    m.Add(starts[s] == 0)
-        m.Add(sum(work[d, s] for s in range(SLOTS)) <= MAX_DAILY_HOURS * 60 // SLOT)
-
-    penalties = []
-    for c in constraints:
-        if c["type"] == "fixed":
-            m.Add(fixed[c["uid"]] == c["start"])
-        elif c["type"] == "hours":  # hard bounds, in slots
-            total = sum(work.values())
-            m.Add(total >= c["min"] * 60 // SLOT)
-            m.Add(total <= c["max"] * 60 // SLOT)
-        elif c["type"] == "day_pref":
-            day = [work[c["day"], s] for s in range(SLOTS)]
-            if c["weight"] is None:          # hard: never
-                m.Add(sum(day) == 0)
-            else:                            # soft: cost per slot
-                penalties.append(int(c["weight"]) * sum(day))
-
-    m.Minimize(sum(penalties))
-    solver = cp_model.CpSolver()
-    if solver.Solve(m) not in (cp_model.OPTIMAL, cp_model.FEASIBLE):
-        raise RuntimeError("Infeasible constraint set")
-    times = {uid: solver.Value(s) for uid, s in fixed.items()}
-    slots = {k for k, v in work.items() if solver.Value(v)}
-    return times, slots, solver.ObjectiveValue()
-
-
-def work_blocks(slots, week0):
-    """Merge consecutive work slots into (start, end) datetimes."""
-    blocks = []
-    for d, s in sorted(slots):
-        st = slot_start(week0, d, s)
-        if blocks and blocks[-1][1] == st:
-            blocks[-1][1] = st + timedelta(minutes=SLOT)
-        else:
-            blocks.append([st, st + timedelta(minutes=SLOT)])
-    return blocks
-
-
-def write_calendar(cal, events, times, blocks, path):
-    for e in events:
-        start = (EPOCH + timedelta(minutes=times[e["uid"]])).astimezone(e["tz"])
-        end = start + (e["end"] - e["start"])
-        comp = e["comp"]
-        for key, val in (("DTSTART", start), ("DTEND", end)):
-            comp.pop(key, None)
-            comp.add(key, val)
-        comp.pop("DURATION", None)
+def write_calendar(cal, blocks, path):
     for i, (st, en) in enumerate(blocks):
         ev = Event()
         ev.add("uid", f"work{i}@gig-scheduler")
@@ -150,17 +57,151 @@ def write_calendar(cal, events, times, blocks, path):
     open(path, "wb").write(cal.to_ical())
 
 
-if __name__ == "__main__":
-    cal, events = load_events(sys.argv[1])
-    prefs = json.load(open(sys.argv[3])) if len(sys.argv) > 3 else DEFAULT_PREFS
+# ---------- model ----------
+class Model:
+    def __init__(self, week0, n_days, events, rate):
+        self.m = cp_model.CpModel()
+        self.week0, self.n_days, self.rate = week0, n_days, rate
+        self.penalties = []   # objective terms
+        self.reports = []     # (label, var/expr, unit) for soft-violation explanations
+        m = self.m
+        self.work = {(d, s): m.NewBoolVar(f"w{d}_{s}") for d in range(n_days) for s in range(SPD)}
+        self.start = {(d, s): m.NewBoolVar(f"st{d}_{s}") for d in range(n_days) for s in range(SPD)}
+        lo, hi = slot_of(WORK_WINDOW[0]), slot_of(WORK_WINDOW[1])
+        for (d, s), w in self.work.items():
+            m.Add(self.start[d, s] >= w - (self.work[d, s - 1] if s else 0))
+            m.Add(self.start[d, s] <= w)
+            a = self.slot_time(d, s)
+            b = a + timedelta(minutes=SLOT)
+            if not lo <= s < hi or any(a < e["end"] and e["start"] < b for e in events):
+                m.Add(w == 0)  # outside work window, or clashes with a fixed event
+
+    def slot_time(self, d, s):
+        return self.week0 + timedelta(days=d, minutes=s * SLOT)
+
+    def days(self, c):  # day indices in the horizon matching c["days"]
+        wanted = c.get("days", DAYS)
+        return [d for d in range(self.n_days) if DAYS[d % 7] in wanted]
+
+    def soft(self, c, viol, unit):
+        self.penalties.append(c["weight"] * viol)
+        self.reports.append((c["label"], viol, unit))
+
+    # ----- constraint types -----
+    def avoid(self, c):
+        a, b = slot_of(c.get("from", "00:00")), slot_of(c.get("to", "24:00"))
+        sel = [self.work[d, s] for d in self.days(c) for s in range(a, b)]
+        if "weight" in c:
+            v = self.m.NewIntVar(0, len(sel), "")
+            self.m.Add(v == sum(sel))
+            self.soft(c, v, "half-hours worked")
+        else:
+            for w in sel:
+                self.m.Add(w == 0)
+
+    def hours(self, c):
+        ds = self.days(c)
+        groups = [[d] for d in ds] if c["per"] == "day" else \
+                 [[d for d in ds if d // 7 == wk] for wk in range(self.n_days // 7 + 1)]
+        for g in filter(None, groups):
+            total = sum(self.work[d, s] for d in g for s in range(SPD))
+            for key, sign in (("min", 1), ("max", -1)):
+                if key not in c:
+                    continue
+                bound = n_slots(c[key])
+                if "weight" in c:
+                    slack = self.m.NewIntVar(0, len(g) * SPD, "")
+                    self.m.Add(sign * total + slack >= sign * bound)
+                    self.soft(c, slack, f"half-hours {'short' if sign > 0 else 'over'}")
+                else:
+                    self.m.Add(sign * total >= sign * bound)
+
+    def shift(self, c):
+        m = self.m
+        for d in range(self.n_days):
+            if "max_per_day" in c:
+                m.Add(sum(self.start[d, s] for s in range(SPD)) <= c["max_per_day"])
+            if "min_h" in c:
+                k = n_slots(c["min_h"])
+                for s in range(SPD):
+                    for i in range(k):
+                        if s + i < SPD:
+                            m.Add(self.work[d, s + i] == 1).OnlyEnforceIf(self.start[d, s])
+                        else:
+                            m.Add(self.start[d, s] == 0)
+            if "max_h" in c:
+                k = n_slots(c["max_h"])
+                for s in range(SPD - k):
+                    m.Add(sum(self.work[d, s + i] for i in range(k + 1)) <= k)
+
+    def earn(self, c):
+        by = date.fromisoformat(c["by"])
+        sel = [w for (d, s), w in self.work.items() if self.slot_time(d, s).date() < by]
+        pence_per_slot = int(round(self.rate * 100 * SLOT / 60))
+        earned = pence_per_slot * sum(sel)
+        target = int(round(c["amount"] * 100))
+        if "weight" in c:
+            short = self.m.NewIntVar(0, int(c["amount"]) + 1, "")  # whole pounds
+            self.m.Add(earned + 100 * short >= target)
+            self.soft(c, short, "GBP short")
+        else:
+            self.m.Add(earned >= target)
+
+
+def solve(events, spec):
+    cons = spec["constraints"]
+    if not any(c["type"] == "shift" for c in cons):
+        cons = cons + [DEFAULT_SHIFT]
+    rate = spec.get("hourly_rate", DEFAULT_RATE)
+
     first = min(e["start"] for e in events).astimezone(timezone.utc)
     week0 = (first - timedelta(days=first.weekday())).replace(hour=0, minute=0, second=0, microsecond=0)
+    last = max([week0.date() + timedelta(days=7)] +
+               [date.fromisoformat(c["by"]) for c in cons if c["type"] == "earn"])
+    n_days = -(-(last - week0.date()).days // 7) * 7   # round up to whole weeks
 
-    constraints = build_constraints(events, prefs)
-    times, slots, cost = solve(events, constraints, week0)
-    blocks = work_blocks(slots, week0)
-    write_calendar(cal, events, times, blocks, sys.argv[2])
-    print(f"{len(events)} fixed events, {len(slots) * SLOT / 60:g}h work in "
-          f"{len(blocks)} shifts, penalty {cost:g} -> {sys.argv[2]}")
+    M = Model(week0, n_days, events, rate)
+    for c in cons:
+        getattr(M, c["type"])(c)
+    hours_worked = sum(M.work.values())
+    M.m.Minimize(sum(M.penalties) + hours_worked)
+
+    solver = cp_model.CpSolver()
+    solver.parameters.max_time_in_seconds = 20
+    if solver.Solve(M.m) not in (cp_model.OPTIMAL, cp_model.FEASIBLE):
+        raise SystemExit("No schedule satisfies the hard constraints. Relax one (e.g. make it soft).")
+
+    chosen = sorted(k for k, v in M.work.items() if solver.Value(v))
+    blocks = []
+    for d, s in chosen:
+        st = M.slot_time(d, s)
+        if blocks and blocks[-1][1] == st:
+            blocks[-1][1] = st + timedelta(minutes=SLOT)
+        else:
+            blocks.append([st, st + timedelta(minutes=SLOT)])
+    broken = [(lbl, solver.Value(v), unit) for lbl, v, unit in M.reports if solver.Value(v)]
+    return blocks, len(chosen) * SLOT / 60, broken
+
+
+def validate(spec):
+    try:
+        import jsonschema
+        jsonschema.validate(spec, json.load(open("schema.json")))
+    except ImportError:
+        pass  # pip install jsonschema to enable
+
+
+if __name__ == "__main__":
+    cal, events = load_events(sys.argv[1])
+    spec = json.load(open(sys.argv[3]))
+    validate(spec)
+    blocks, hrs, broken = solve(events, spec)
+    write_calendar(cal, blocks, sys.argv[2])
+
+    print(f"{hrs:g}h work in {len(blocks)} shifts -> {sys.argv[2]}")
     for st, en in blocks:
-        print(f"  Work {st:%a %H:%M}-{en:%H:%M}")
+        print(f"  Work {st:%a %d %b %H:%M}-{en:%H:%M}")
+    for c in spec["constraints"]:
+        print(f"  [{'soft' if 'weight' in c else 'hard'}] {c['label']}")
+    for lbl, v, unit in broken:
+        print(f"  ! '{lbl}': {v} {unit}")
