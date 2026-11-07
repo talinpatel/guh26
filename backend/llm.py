@@ -8,7 +8,8 @@ import jsonschema
 
 import planner
 
-MODEL = "claude-opus-5-5"
+MODEL = "claude-sonnet-5-5"
+EFFORT = "low"  # constraint translation is easy; low keeps chat replies quick
 MAX_TRIES = 3
 HERE = os.path.dirname(__file__)
 SYSTEM = open(os.path.join(HERE, "system_prompt.md")).read()
@@ -81,7 +82,7 @@ def chat(history, message, ctx, solve, current):
     for _ in range(MAX_TRIES + 1):
         r = client().beta.messages.create(
             model=MODEL, max_tokens=16000, system=SYSTEM, tools=[TOOL], messages=messages,
-            output_config={"effort": "medium"},
+            output_config={"effort": EFFORT},
             betas=["server-side-fallback-2026-07-01"], fallbacks="default",
         )
         if r.stop_reason == "refusal":
