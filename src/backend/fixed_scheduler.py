@@ -1,6 +1,7 @@
 """MVP scheduler: fixed events (.ics) + LLM constraints (schema.json) -> CP-SAT -> .ics
 
-Usage: python fixed_scheduler.py input.ics output.ics constraints.json
+Usage: python fixed_scheduler.py input.ics output.ics constraints.json [more.json ...]
+  (constraint lists are merged; e.g. user prefs + financial.json)
 Constraint types: avoid, hours, shift, earn. No weight = hard; weight = soft.
 Objective: minimise soft penalties + hours worked (so it works only what's needed).
 """
@@ -193,8 +194,13 @@ def validate(spec):
 
 if __name__ == "__main__":
     cal, events = load_events(sys.argv[1])
-    spec = json.load(open(sys.argv[3]))
-    validate(spec)
+    spec = {"constraints": []}   # merge any number of constraint files
+    for path in sys.argv[3:]:
+        part = json.load(open(path))
+        validate(part)
+        spec["constraints"] += part["constraints"]
+        if "hourly_rate" in part:
+            spec["hourly_rate"] = part["hourly_rate"]
     blocks, hrs, broken = solve(events, spec)
     write_calendar(cal, blocks, sys.argv[2])
 

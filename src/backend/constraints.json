@@ -1,15 +1,64 @@
 {
-  "hourly_rate": 12,
   "constraints": [
-    { "type": "avoid", "label": "no work before 8am", "from": "00:00", "to": "08:00" },
-    { "type": "avoid", "label": "no work after 10pm", "from": "22:00", "to": "24:00" },
-    { "type": "avoid", "label": "lunch 12-1", "from": "12:00", "to": "13:00" },
-    { "type": "avoid", "label": "never Sunday", "days": ["sun"] },
-    { "type": "avoid", "label": "rather not Mondays", "days": ["mon"], "weight": 10 },
-    { "type": "avoid", "label": "prefer mornings", "from": "17:00", "to": "22:00", "weight": 2 },
-    { "type": "hours", "label": "10-15 hours a week", "per": "week", "min": 10, "max": 15 },
-    { "type": "hours", "label": "max 8h a day", "per": "day", "max": 8 },
-    { "type": "shift", "label": "shifts 2-3h, at most 2 a day", "min_h": 2, "max_h": 3, "max_per_day": 2 },
-    { "type": "earn", "label": "£300 for rent by 20 Nov", "amount": 300, "by": "2026-11-20", "weight": 1000 }
+    {
+      "type": "avoid",
+      "label": "no work before 8am",
+      "from": "00:00",
+      "to": "08:00"
+    },
+    {
+      "type": "avoid",
+      "label": "no work after 10pm",
+      "from": "22:00",
+      "to": "24:00"
+    },
+    {
+      "type": "avoid",
+      "label": "lunch 12-1",
+      "from": "12:00",
+      "to": "13:00"
+    },
+    {
+      "type": "avoid",
+      "label": "never Sunday",
+      "days": [
+        "sun"
+      ]
+    },
+    {
+      "type": "avoid",
+      "label": "rather not Mondays",
+      "days": [
+        "mon"
+      ],
+      "weight": 10
+    },
+    {
+      "type": "avoid",
+      "label": "prefer mornings",
+      "from": "17:00",
+      "to": "22:00",
+      "weight": 2
+    },
+    {
+      "type": "hours",
+      "label": "10-15 hours a week",
+      "per": "week",
+      "min": 10,
+      "max": 15
+    },
+    {
+      "type": "hours",
+      "label": "max 8h a day",
+      "per": "day",
+      "max": 8
+    },
+    {
+      "type": "shift",
+      "label": "shifts 2-3h, at most 2 a day",
+      "min_h": 2,
+      "max_h": 3,
+      "max_per_day": 2
+    }
   ]
 }
