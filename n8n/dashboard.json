@@ -1,0 +1,236 @@
+{
+  "name": "Giggle dashboard (GET)",
+  "nodes": [
+    {
+      "id": "70b98c64-9b4a-4647-b321-f30439c562f1",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        220,
+        300
+      ],
+      "parameters": {
+        "httpMethod": "GET",
+        "path": "dashboard",
+        "responseMode": "responseNode",
+        "options": {
+          "allowedOrigins": "*"
+        }
+      },
+      "webhookId": "542a078d-9eec-4ec2-99d1-e9f308feff4c"
+    },
+    {
+      "id": "4397fae7-aa32-427a-a6be-72eba66aabcc",
+      "name": "Check",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        440,
+        300
+      ],
+      "parameters": {
+        "jsCode": "const id = String($('Webhook').first().json.query.user_id ?? '');\nif (!/^[0-9a-f-]{36}$/i.test(id)) throw new Error('user_id query param must be a UUID');\nreturn [{ json: { user_id: id } }];"
+      }
+    },
+    {
+      "id": "9baf1ffd-cc18-49bd-b771-780041d383ff",
+      "name": "Get user",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1,
+      "position": [
+        660,
+        300
+      ],
+      "parameters": {
+        "resource": "row",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "",
+          "cachedResultName": "users"
+        },
+        "operation": "get",
+        "returnAll": true,
+        "matchType": "allConditions",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "user_id",
+              "condition": "eq",
+              "keyValue": "={{ $('Check').first().json.user_id }}"
+            }
+          ]
+        }
+      },
+      "alwaysOutputData": true,
+      "executeOnce": true
+    },
+    {
+      "id": "90f9d649-0135-44a8-917d-ce0fb447100e",
+      "name": "Get calendar",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1,
+      "position": [
+        880,
+        300
+      ],
+      "parameters": {
+        "resource": "row",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "",
+          "cachedResultName": "calendar_events"
+        },
+        "operation": "get",
+        "returnAll": true,
+        "matchType": "allConditions",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "user_id",
+              "condition": "eq",
+              "keyValue": "={{ $('Check').first().json.user_id }}"
+            }
+          ]
+        }
+      },
+      "alwaysOutputData": true,
+      "executeOnce": true
+    },
+    {
+      "id": "363b67d1-aae3-4ed6-88a1-430ec0968cc8",
+      "name": "Get transactions",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1,
+      "position": [
+        1100,
+        300
+      ],
+      "parameters": {
+        "resource": "row",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "",
+          "cachedResultName": "transactions"
+        },
+        "operation": "get",
+        "returnAll": true,
+        "matchType": "allConditions",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "user_id",
+              "condition": "eq",
+              "keyValue": "={{ $('Check').first().json.user_id }}"
+            }
+          ]
+        }
+      },
+      "alwaysOutputData": true,
+      "executeOnce": true
+    },
+    {
+      "id": "d983293a-db2d-48c8-84da-b2eda6af9ee7",
+      "name": "Assemble",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1320,
+        300
+      ],
+      "parameters": {
+        "jsCode": "// One payload for the dashboard (and the scheduler LLM): profile, calendar, transactions, and cashflow derived from them.\nconst rows = (node) => $(node).all().map((i) => i.json).filter((r) => r.user_id);\nconst pick = (r, keys) => Object.fromEntries(keys.map((k) => [k, r[k] ?? null]));\n\nconst [user = null] = rows('Get user').map((r) => pick(r, ['user_id', 'job', 'mode', 'hourly_pay', 'preferences', 'updated_at']));\nconst events = rows('Get calendar').map((r) => pick(r, ['title', 'start', 'end', 'location', 'rrule'])).sort((a, b) => String(a.start).localeCompare(String(b.start)));\nconst transactions = rows('Get transactions').map((r) => pick(r, ['date', 'description', 'amount', 'category', 'balance'])).sort((a, b) => String(a.date).localeCompare(String(b.date)));\n\n// shortcut: a \"bill\" is any outgoing with the same description in 2+ months; balance is the latest row's Balance column (null if the CSV had none).\nconst byDesc = {};\nfor (const t of transactions) if (t.amount < 0 && t.description) (byDesc[t.description.toLowerCase()] ??= []).push(t);\nconst bills = Object.values(byDesc)\n  .filter((ts) => new Set(ts.map((t) => t.date.slice(0, 7))).size >= 2)\n  .map((ts) => { const last = ts.at(-1); return { name: last.description, amount: -last.amount, day: Number(last.date.slice(8, 10)) }; })\n  .sort((a, b) => a.day - b.day);\nconst latest = transactions.findLast((t) => t.balance != null);\n\nreturn [{ json: { user, events, transactions, cashflow: { balance: latest?.balance ?? null, bills } } }];\n"
+      }
+    },
+    {
+      "id": "830d78e0-9aa2-4cc9-b666-67287538346b",
+      "name": "Respond",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        1540,
+        300
+      ],
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify($json) }}",
+        "options": {}
+      },
+      "executeOnce": true
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Check",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check": {
+      "main": [
+        [
+          {
+            "node": "Get user",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get user": {
+      "main": [
+        [
+          {
+            "node": "Get calendar",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get calendar": {
+      "main": [
+        [
+          {
+            "node": "Get transactions",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get transactions": {
+      "main": [
+        [
+          {
+            "node": "Assemble",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Assemble": {
+      "main": [
+        [
+          {
+            "node": "Respond",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  }
+}

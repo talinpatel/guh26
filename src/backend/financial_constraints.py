@@ -27,9 +27,13 @@ def is_discretionary(r):
     return r["category"] in DISCRETIONARY or (r["category"], r["subcategory"]) in DISCRETIONARY
 
 
-def analyse(path):
-    rows = list(csv.DictReader(open(path, newline="", encoding="utf-8-sig")))
-    rows.sort(key=lambda r: (r["date"], r["transaction_id"]))
+def read(path):
+    return list(csv.DictReader(open(path, newline="", encoding="utf-8-sig")))
+
+
+def analyse(rows):
+    """rows: dicts with this file's CSV columns (see transactions.csv)."""
+    rows = sorted(rows, key=lambda r: (r["date"], r["transaction_id"]))
     last = date.fromisoformat(rows[-1]["date"])
     balance = float(rows[-1]["running_balance_gbp"])
 
@@ -38,14 +42,14 @@ def analyse(path):
     shifts = sum(int(m.group(1)) for r in pay if (m := re.search(r"(\d+) shifts?", r["description"])))
     gross = sum(float(r["amount_gbp"]) for r in pay)
     work_costs = -sum(float(r["amount_gbp"]) for r in rows if r["shift_id"])
-    net_rate = (gross - work_costs) / (shifts * SHIFT_HOURS)
+    net_rate = (gross - work_costs) / (shifts * SHIFT_HOURS) if shifts else 0.0
 
     # Recurring bills: bill_id like RENT-08 -> monthly on the same day.
     bills = {}
     for r in rows:
         if r["bill_id"]:
             name = re.sub(r"-\d+$", "", r["bill_id"])
-            bills[name] = {"amount": -float(r["amount_gbp"]), "day": int(r["date"][8:]),
+            bills[name] = {"amount": -float(r["amount_gbp"]), "day": int(r["date"][8:]), "label": r["subcategory"] or name.title(),
                            "essential": name not in NON_ESSENTIAL_BILLS}
 
     # Average weekly variable spending over the recent window (no bills, work costs, one-off shocks).
@@ -69,7 +73,7 @@ def bills_due(bills, start, end, essential):
 
 
 def build(path, start, weeks):
-    last, balance, rate, bills, weekly = analyse(path)
+    last, balance, rate, bills, weekly = analyse(read(path))
     gap_start = last + timedelta(days=1)   # bills between end of data and schedule start count as due now
     cons = []
     for w in range(1, weeks + 1):

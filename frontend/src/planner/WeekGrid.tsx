@@ -1,13 +1,13 @@
-import { DAYS, money, time, type Busy, type Change, type Shift } from '../lib/cashflow.ts'
-import { BUSY, FIRST_DATE, PLANNER } from '../constants/planner.ts'
+import { DAYS, dateAt, money, time, type Busy, type Change, type Shift } from '../lib/cashflow.ts'
+import { PLANNER } from '../constants/planner.ts'
 
 const START = 8, END = 24, HOUR_PX = 34
 const pos = (e: Busy) => ({ top: (e.start - START) * HOUR_PX, height: (e.end - e.start) * HOUR_PX - 2 })
 const label = (s: Shift) => `${s.platform}, ${DAYS[s.day]} ${time(s.start)} to ${time(s.end)}, ${money(s.pay)}`
 
-type Props = { plan: Shift[]; proposal: Change | null; selected: string | null; onSelect: (id: string) => void }
+type Props = { plan: Shift[]; busy: Busy[]; start: Date; proposal: Change | null; selected: string | null; onSelect: (id: string) => void }
 
-export default function WeekGrid({ plan, proposal, selected, onSelect }: Props) {
+export default function WeekGrid({ plan, busy, start, proposal, selected, onSelect }: Props) {
   const hours = Array.from({ length: END - START }, (_, i) => START + i)
   const block = 'absolute inset-x-[3px] overflow-hidden rounded-lg px-1.5 py-1 text-left text-[11px] leading-tight'
 
@@ -52,7 +52,7 @@ export default function WeekGrid({ plan, proposal, selected, onSelect }: Props) 
           {DAYS.map((d, i) => (
             <div key={d} className="sticky top-0 z-10 border-b border-l border-stone-200 bg-white px-1.5 py-2 text-center text-xs text-stone-500">
               {d}
-              <b className="block text-[13px] text-stone-900">{FIRST_DATE + i}</b>
+              <b className="block text-[13px] text-stone-900">{dateAt(start, i).getUTCDate()}</b>
             </div>
           ))}
           <div className="relative" style={{ height: (END - START) * HOUR_PX }}>
@@ -68,7 +68,7 @@ export default function WeekGrid({ plan, proposal, selected, onSelect }: Props) 
               className="relative border-l border-stone-200"
               style={{ height: (END - START) * HOUR_PX, backgroundImage: `repeating-linear-gradient(to bottom, var(--color-stone-200) 0 1px, transparent 1px ${HOUR_PX}px)` }}
             >
-              {BUSY.filter((e) => e.day === day).map((e) => (
+              {busy.filter((e) => e.day === day).map((e) => (
                 <div key={e.title + e.start} style={pos(e)} className={`${block} bg-stone-200 text-stone-600`}>
                   <span className="block font-semibold">{e.title}</span>
                 </div>

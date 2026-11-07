@@ -1,9 +1,10 @@
 import { useEffect, useRef, useState } from 'react'
 import { Send, X } from 'lucide-react'
-import { DAYS, money, time, type Change, type Shift } from '../lib/cashflow.ts'
-import { PLANNER, RENT, SCRIPTS } from '../constants/planner.ts'
+import { DAYS, money, time, type Bill, type Change, type Shift } from '../lib/cashflow.ts'
+import { PLANNER } from '../constants/planner.ts'
 
 export type Msg = {
+  id?: number // server message id; needed to accept or undo its change
   role: 'user' | 'ai'
   text: string
   change?: Change & { removed: Shift[]; status: 'pending' | 'accepted' | 'undone' }
@@ -12,20 +13,22 @@ export type Msg = {
 type Props = {
   msgs: Msg[]
   shift: Shift | null
+  bigBill?: Bill
+  waiting: boolean
   onAsk: (text: string) => void
   onAccept: (i: number) => void
   onUndo: (i: number) => void
   onCloseWhy: () => void
 }
 
-export default function Scheduler({ msgs, shift, onAsk, onAccept, onUndo, onCloseWhy }: Props) {
+export default function Scheduler({ msgs, shift, bigBill, waiting, onAsk, onAccept, onUndo, onCloseWhy }: Props) {
   const [input, setInput] = useState('')
   const endRef = useRef<HTMLDivElement>(null)
-  useEffect(() => endRef.current?.scrollIntoView({ block: 'nearest' }), [msgs])
+  useEffect(() => endRef.current?.scrollIntoView({ block: 'nearest' }), [msgs, waiting])
 
   function send(e: React.FormEvent) {
     e.preventDefault()
-    if (!input.trim()) return
+    if (!input.trim() || waiting) return
     onAsk(input.trim())
     setInput('')
   }
@@ -54,11 +57,10 @@ export default function Scheduler({ msgs, shift, onAsk, onAccept, onUndo, onClos
           </div>
           <dl className="mt-2.5 grid grid-cols-[auto_1fr] gap-x-3 gap-y-1 text-[13px] tabular-nums">
             <dt className="text-stone-500">{PLANNER.whyPay}</dt><dd className="text-right font-semibold">{money(shift.pay)}</dd>
-            <dt className="text-stone-500">{PLANNER.whyRate(shift.window)}</dt><dd className="text-right font-semibold">£{shift.rate}/hr</dd>
-            <dt className="text-stone-500">{PLANNER.whyBoost}</dt><dd className="text-right font-semibold">{shift.boost > 1 ? `+${Math.round((shift.boost - 1) * 100)}%` : 'None'}</dd>
-            <dt className="text-stone-500">{PLANNER.whyRent}</dt><dd className="text-right font-semibold">{Math.round((shift.pay / RENT) * 100)}%</dd>
+            <dt className="text-stone-500">{PLANNER.whyRate}</dt><dd className="text-right font-semibold">£{shift.rate}/hr</dd>
+            {bigBill && <><dt className="text-stone-500">{PLANNER.whyShare(bigBill.name)}</dt><dd className="text-right font-semibold">{Math.round((shift.pay / bigBill.amount) * 100)}%</dd></>}
           </dl>
-          <p className="mt-2.5 text-[13px] text-stone-500">{PLANNER.whyNote(shift.start >= 17)}</p>
+          <p className="mt-2.5 text-[13px] text-stone-500">{PLANNER.whyNote}</p>
         </div>
       )}
 
@@ -93,13 +95,14 @@ export default function Scheduler({ msgs, shift, onAsk, onAccept, onUndo, onClos
             )}
           </div>
         ))}
+        {waiting && <div className="self-start rounded-2xl rounded-bl-sm border border-stone-200 bg-paper px-3 py-2 text-[13.5px] text-stone-500">{PLANNER.thinking}</div>}
         <div ref={endRef} />
       </div>
 
       <div className="flex flex-wrap gap-1.5 px-3 pb-2.5">
-        {Object.values(SCRIPTS).map((s) => (
-          <button key={s.ask} type="button" onClick={() => onAsk(s.ask)} className="rounded-full border border-stone-200 px-2.5 py-1 text-xs text-stone-500 hover:border-brand-600 hover:text-brand-600">
-            {s.ask}
+        {PLANNER.suggestions.map((q) => (
+          <button key={q} type="button" disabled={waiting} onClick={() => onAsk(q)} className="rounded-full border border-stone-200 px-2.5 py-1 text-xs text-stone-500 hover:border-brand-600 hover:text-brand-600">
+            {q}
           </button>
         ))}
       </div>
@@ -113,7 +116,7 @@ export default function Scheduler({ msgs, shift, onAsk, onAccept, onUndo, onClos
           placeholder={PLANNER.askPlaceholder}
           className="min-w-0 flex-1 rounded-xl border border-stone-200 bg-paper px-3 py-2 text-sm focus:border-brand-500 focus:ring-4 focus:ring-brand-100 focus:outline-none"
         />
-        <button type="submit" disabled={!input.trim()} aria-label={PLANNER.send} className="rounded-xl bg-brand-600 px-3 text-white hover:bg-brand-700 disabled:bg-stone-300">
+        <button type="submit" disabled={!input.trim() || waiting} aria-label={PLANNER.send} className="rounded-xl bg-brand-600 px-3 text-white hover:bg-brand-700 disabled:bg-stone-300">
           <Send className="size-4" />
         </button>
       </form>

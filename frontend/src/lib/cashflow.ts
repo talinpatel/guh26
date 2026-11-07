@@ -5,29 +5,28 @@ export type Bill = { name: string; amount: number; date: number } // date = day 
 export type Change = { remove: string[]; add: Shift[] }
 
 export const DAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
-export const WEEKEND_BOOST = 1.2 // Fri, Sat, Sun demand premium
 
 export const money = (n: number) => (Math.round(n) < 0 ? '−£' : '£') + Math.abs(Math.round(n)).toLocaleString('en-GB')
 export const time = (h: number) => `${String(Math.floor(h)).padStart(2, '0')}:${h % 1 ? '30' : '00'}`
 export const totalPay = (s: Shift[]) => s.reduce((a, x) => a + x.pay, 0)
 export const totalHours = (s: Shift[]) => s.reduce((a, x) => a + x.end - x.start, 0)
 
-export function makeShift(id: string, day: number, start: number, end: number, platform: string, rate: number, window: string): Shift {
-  const boost = day >= 4 ? WEEKEND_BOOST : 1
-  return { id, title: platform, day, start, end, platform, rate, boost, window, pay: Math.round(rate * boost * (end - start)) }
-}
-
 export const applyChange = (plan: Shift[], c: Change) => plan.filter((s) => !c.remove.includes(s.id)).concat(c.add)
 
-// End-of-day balance for each date in [from, to]. firstDate is a Monday.
-// shortcut: assumes the week's plan repeats and pay lands the day you work; model weekly platform payouts later.
-export function series(shifts: Shift[], startBalance: number, bills: Bill[], from: number, to: number): [number, number][] {
+// End-of-day balance for each day offset in [0, days). start is a Monday (UTC); bills land on their day of the month.
+// shortcut: assumes the week's plan repeats, pay lands the day you work and spending is spread evenly; model weekly platform payouts later.
+export function series(shifts: Shift[], startBalance: number, bills: Bill[], start: Date, days: number, dailySpend = 0): [number, number][] {
   let b = startBalance
   const out: [number, number][] = []
-  for (let d = from; d <= to; d++) {
-    for (const s of shifts) if (s.day === (d - from) % 7) b += s.pay
-    for (const x of bills) if (x.date === d) b -= x.amount
-    out.push([d, b])
+  for (let i = 0; i < days; i++) {
+    const date = dateAt(start, i).getUTCDate()
+    for (const s of shifts) if (s.day === i % 7) b += s.pay
+    for (const x of bills) if (x.date === date) b -= x.amount
+    b -= dailySpend
+    out.push([i, b])
   }
   return out
 }
+
+export const dateAt = (start: Date, i: number) => new Date(start.getTime() + i * 86_400_000)
+export const fmtDay = (d: Date) => d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', timeZone: 'UTC' })

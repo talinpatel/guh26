@@ -1,15 +1,7 @@
 import { useState } from "react";
 import { ChevronDown } from "lucide-react";
-import { money, series, totalPay, type Shift } from "../lib/cashflow.ts";
-import {
-  BIG_PAYMENT,
-  BILLS,
-  FIRST_DATE,
-  LAST_DATE,
-  PLANNER,
-  RENT_DATE,
-  START_BALANCE,
-} from "../constants/planner.ts";
+import { dateAt, fmtDay, money, series, type Bill, type Shift } from "../lib/cashflow.ts";
+import { BIG_PAYMENT, DAYS_SHOWN, PLANNER } from "../constants/planner.ts";
 
 const W = 720,
   H = 250,
@@ -18,29 +10,43 @@ const W = 720,
   T = 14,
   B = 64,
   STEP = 250;
-const run = (s: Shift[]) =>
-  series(s, START_BALANCE, BILLS, FIRST_DATE, LAST_DATE);
-const onRentDay = (s: Shift[]) => run(s).find(([d]) => d === RENT_DATE)![1];
+const FIRST_DATE = 0,
+  LAST_DATE = DAYS_SHOWN - 1; // day offsets from the plan's Monday
 
 export default function CashFlow({
   plan,
   preview,
+  balance,
+  bills: allBills,
+  start,
+  dailySpend,
 }: {
   plan: Shift[];
   preview: Shift[] | null;
+  balance: number;
+  bills: Bill[];
+  start: Date;
+  dailySpend: number;
 }) {
   const [open, setOpen] = useState(false);
+  const run = (s: Shift[]) => series(s, balance, allBills, start, DAYS_SHOWN, dailySpend);
+  const endOf = (s: Shift[]) => run(s).at(-1)![1];
+  // Big bills placed on the first day they fall due in the horizon (a month, so each monthly bill shows once).
+  const BILLS = allBills
+    .filter((b) => b.amount >= BIG_PAYMENT)
+    .map((b) => ({ ...b, date: Array.from({ length: DAYS_SHOWN }, (_, i) => i).find((i) => dateAt(start, i).getUTCDate() === b.date) ?? -1 }))
+    .filter((b) => b.date >= 0)
+    .sort((a, b) => a.date - b.date);
   const shown = preview ?? plan;
-  const bigPayments = BILLS.filter((b) => b.amount >= BIG_PAYMENT).sort(
-    (a, b) => a.date - b.date,
-  );
+  const shownRun = run(shown);
+  const bigPayments = BILLS.map((b) => ({ ...b, after: shownRun[b.date][1] })); // balance at the end of that day
   const cur = run(plan),
     none = run([]),
     prop = preview && run(preview);
 
   const vals = [...cur, ...none, ...(prop ?? [])]
     .map((p) => p[1])
-    .concat(START_BALANCE, 0);
+    .concat(balance, 0);
   const lo = Math.floor(Math.min(...vals) / STEP) * STEP;
   const hi = Math.ceil(Math.max(...vals) / STEP) * STEP;
   const x = (d: number) =>
@@ -48,7 +54,7 @@ export default function CashFlow({
   const y = (v: number) => T + ((hi - v) / (hi - lo)) * (H - T - B);
   // Step line: balance holds flat, then jumps mid-day when pay or a bill lands.
   const path = (pts: [number, number][]) => {
-    let prev = START_BALANCE;
+    let prev = balance;
     let d = `M${x(FIRST_DATE)},${y(prev)}`;
     for (const [day, b] of pts) {
       d += ` L${x(day + 0.5)},${y(prev)} L${x(day + 0.5)},${y(b)}`;
@@ -60,7 +66,7 @@ export default function CashFlow({
     { length: (hi - lo) / STEP + 1 },
     (_, i) => lo + i * STEP,
   );
-  const mondays = [0, 7, 14, 21].map((n) => FIRST_DATE + n);
+  const mondays = [0, 7, 14, 21, 28].map((n) => FIRST_DATE + n);
   const endBal = (prop ?? cur).at(-1)![1],
     noneEnd = none.at(-1)![1];
 
@@ -73,13 +79,15 @@ export default function CashFlow({
         id="cash-title"
         className="text-2xl font-bold leading-tight text-stone-900 text-balance sm:text-3xl"
       >
-        {PLANNER.cashTitle(onRentDay(shown), !!preview)}
+        {PLANNER.cashTitle(endOf(shown), !!preview, fmtDay(dateAt(start, LAST_DATE)))}
       </h2>
-      <p className="mt-1.5 max-w-prose text-stone-500">
-        {PLANNER.cashShort}{" "}
-        <b className="font-semibold text-red-700">{money(-onRentDay([]))}</b>{" "}
-        {PLANNER.cashShortEnd}
-      </p>
+      {endOf([]) < 0 && (
+        <p className="mt-1.5 max-w-prose text-stone-500">
+          {PLANNER.cashShort}{" "}
+          <b className="font-semibold text-red-700">{money(-endOf([]))}</b>{" "}
+          {PLANNER.cashShortEnd}
+        </p>
+      )}
 
       <button
         type="button"
@@ -130,10 +138,10 @@ export default function CashFlow({
                   key={d}
                   x={x(d)}
                   y={H - B + 16}
-                  textAnchor={i === 0 ? "start" : i === 3 ? "end" : "middle"}
+                  textAnchor={i === 0 ? "start" : "middle"}
                   className="fill-stone-500 text-[11px]"
                 >
-                  {d} Nov
+                  {fmtDay(dateAt(start, d))}
                 </text>
               ))}
               {BILLS.map((b, i) => (
@@ -234,6 +242,7 @@ export default function CashFlow({
         <h3 className="font-display text-sm font-semibold text-stone-900">
           {PLANNER.nextPayments}
         </h3>
+        {bigPayments.length === 0 && <p className="mt-1 text-sm text-stone-500">{PLANNER.noBigPayments}</p>}
         <ul className="mt-2 grid gap-2 sm:grid-cols-3">
           {bigPayments.map((b) => (
             <li
@@ -245,11 +254,16 @@ export default function CashFlow({
                   {b.name}
                 </span>
                 <span className="block text-xs text-stone-500">
-                  {PLANNER.due(b.date)}
+                  {fmtDay(dateAt(start, b.date))}
                 </span>
               </span>
-              <span className="font-semibold tabular-nums">
-                {money(b.amount)}
+              <span className="text-right">
+                <span className="block font-semibold tabular-nums">
+                  {money(b.amount)}
+                </span>
+                <span className={`block text-xs font-semibold ${b.after >= 0 ? "text-brand-600" : "text-red-700"}`}>
+                  {b.after >= 0 ? PLANNER.covered : PLANNER.shortBy(-b.after)}
+                </span>
               </span>
             </li>
           ))}

@@ -1,18 +1,19 @@
 export const STEPS = ["Calendar", "Work", "Preferences", "Bank"];
 
-// shortcut: hardcoded list, replace with backend data if companies/modes change often.
-export const GIG_COMPANIES: Record<string, string[]> = {
-  Deliveroo: ["Bike", "E-bike", "Scooter", "Car"],
-  "Uber Eats": ["Bike", "E-bike", "Scooter", "Car"],
-  "Just Eat": ["Bike", "E-bike", "Scooter", "Car"],
-  Uber: ["Car"],
-  Bolt: ["Car"],
-  Stuart: ["Bike", "Scooter", "Car", "Van"],
+// shortcut: hardcoded list and rough London base £/hr (before peaks/boosts); replace with real earnings data.
+export const GIG_COMPANIES: Record<string, { modes: string[]; rate: number }> = {
+  Deliveroo: { modes: ["Bike", "E-bike", "Scooter", "Car"], rate: 14 },
+  "Uber Eats": { modes: ["Bike", "E-bike", "Scooter", "Car"], rate: 13 },
+  "Just Eat": { modes: ["Bike", "E-bike", "Scooter", "Car"], rate: 12 },
+  Uber: { modes: ["Car"], rate: 18 },
+  Bolt: { modes: ["Car"], rate: 17 },
+  Stuart: { modes: ["Bike", "Scooter", "Car", "Van"], rate: 13 },
 };
 
 export const WORK = {
   title: "What work do you do?",
-  subtitle: "Pick your gig companies, then how you do the work for each.",
+  subtitle: "Pick your main job, then how you do the work.",
+  estimate: "Estimated base pay:",
   otherTitle: "Other work",
   otherName: "e.g. Bar shifts",
   otherPay: "Approx. pay per hour",
@@ -24,7 +25,7 @@ export const WORK = {
 
 export const WELCOME = {
   titlePrefix: "Welcome to ",
-  brand: "Giggle!",
+  brand: "Giggle",
   tagline: "Your gig work, planned around your life and bills.",
   cta: "Get Started",
 };
@@ -32,6 +33,9 @@ export const WELCOME = {
 export const BUILDING = {
   title: "Building my schedule…",
   subtitle: "Fitting shifts around your week and your bills.",
+  errorTitle: "Couldn't build your schedule",
+  errorNote: "Something went wrong on our side. Your answers are saved, so you can try again.",
+  retry: "Try again",
 };
 
 export const NAV = {
@@ -41,12 +45,12 @@ export const NAV = {
 
 export const CALENDAR = {
   title: "Import calendar data",
-  subtitle: "We plan work around what you've already committed to.",
-  sources: ["Apple", "Google"],
+  subtitle: "Plan gigs around your life.",
+  sources: [],
   icsSource: ".ics file",
   icsLabel: "Import .ics",
-  connected: "Connected to",
-  connectedNote: "We'll plan around your existing events.",
+  connected: "We've imported your calendar",
+  connectedNote: "",
 };
 
 export const PREFS = {
@@ -69,7 +73,8 @@ export const BANK = {
     "Upload your banking data so we know what's coming in and going out.",
   drop: "Drop it here",
   drag: "Drag & drop your banking data",
-  browse: "or click to browse · .json",
+  browse: "or click to browse · .csv",
   uploaded: "uploaded",
+  invalid: "That file doesn't look like a bank statement. Export it as .csv with Date and Amount columns and try again.",
   next: "Build my schedule",
 };

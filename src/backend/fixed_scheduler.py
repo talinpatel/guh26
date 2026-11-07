@@ -6,6 +6,7 @@ Constraint types: avoid, hours, shift, earn. No weight = hard; weight = soft.
 Objective: minimise soft penalties + hours worked (so it works only what's needed).
 """
 import json
+import os
 import sys
 from datetime import date, datetime, timedelta, timezone
 
@@ -149,14 +150,16 @@ class Model:
             self.m.Add(earned >= target)
 
 
-def solve(events, spec):
+def solve(events, spec, week0=None):
+    """week0: horizon start (UTC midnight, a Monday); default = Monday of the first event."""
     cons = spec["constraints"]
     if not any(c["type"] == "shift" for c in cons):
         cons = cons + [DEFAULT_SHIFT]
     rate = spec.get("hourly_rate", DEFAULT_RATE)
 
-    first = min(e["start"] for e in events).astimezone(timezone.utc)
-    week0 = (first - timedelta(days=first.weekday())).replace(hour=0, minute=0, second=0, microsecond=0)
+    if week0 is None:
+        first = min(e["start"] for e in events).astimezone(timezone.utc)
+        week0 = (first - timedelta(days=first.weekday())).replace(hour=0, minute=0, second=0, microsecond=0)
     last = max([week0.date() + timedelta(days=7)] +
                [date.fromisoformat(c["by"]) for c in cons if c["type"] == "earn"])
     n_days = -(-(last - week0.date()).days // 7) * 7   # round up to whole weeks
@@ -169,6 +172,8 @@ def solve(events, spec):
 
     solver = cp_model.CpSolver()
     solver.parameters.max_time_in_seconds = 20
+    solver.parameters.num_workers = 1   # deterministic: same input -> same shifts between runs
+    solver.parameters.random_seed = 0
     if solver.Solve(M.m) not in (cp_model.OPTIMAL, cp_model.FEASIBLE):
         raise SystemExit("No schedule satisfies the hard constraints. Relax one (e.g. make it soft).")
 
@@ -187,7 +192,7 @@ def solve(events, spec):
 def validate(spec):
     try:
         import jsonschema
-        jsonschema.validate(spec, json.load(open("schema.json")))
+        jsonschema.validate(spec, json.load(open(os.path.join(os.path.dirname(__file__), "schema.json"))))
     except ImportError:
         pass  # pip install jsonschema to enable
 

@@ -1,0 +1,8 @@
+fastapi
+uvicorn[standard]
+anthropic
+ortools
+icalendar
+jsonschema
+pytest
+httpx

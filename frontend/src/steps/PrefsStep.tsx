@@ -8,7 +8,7 @@ export default function PrefsStep({
   onNext,
 }: {
   onBack: () => void;
-  onNext: () => void;
+  onNext: (preferences: string) => void;
 }) {
   const [value, onChange] = useState("");
   return (
@@ -42,7 +42,7 @@ export default function PrefsStep({
         ))}
       </div>
 
-      <Nav onBack={onBack} onNext={onNext} />
+      <Nav onBack={onBack} onNext={() => onNext(value.trim())} />
     </>
   );
 }

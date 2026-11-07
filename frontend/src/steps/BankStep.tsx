@@ -3,9 +3,20 @@ import { CheckCircle2, Upload } from 'lucide-react'
 import Nav from './Nav.tsx'
 import { BANK } from '../constants/onboarding.ts'
 
-export default function BankStep({ onBack, onNext }: { onBack: () => void; onNext: () => void }) {
-  const [file, setFile] = useState('')
+export default function BankStep({ onBack, onNext }: { onBack: () => void; onNext: (csv: string) => void }) {
+  const [bank, setBank] = useState<{ filename: string; data: string } | null>(null)
+  const [invalid, setInvalid] = useState(false)
   const [dragging, setDragging] = useState(false)
+
+  // Header check here so a wrong file is caught before it reaches the backend, which does the real parse.
+  async function pick(f: File) {
+    const text = await f.text()
+    const header = text.split(/\r?\n/, 1)[0].toLowerCase()
+    const ok = header.includes('date') && /amount|paid (in|out)|money (in|out)|debit|credit/.test(header)
+    setBank(ok ? { filename: f.name, data: text } : null)
+    setInvalid(!ok)
+  }
+  const file = bank?.filename
 
   return (
     <>
@@ -21,7 +32,7 @@ export default function BankStep({ onBack, onNext }: { onBack: () => void; onNex
         onDrop={(e) => {
           e.preventDefault()
           setDragging(false)
-          if (e.dataTransfer.files[0]) setFile(e.dataTransfer.files[0].name)
+          if (e.dataTransfer.files[0]) pick(e.dataTransfer.files[0])
         }}
         className={`mt-5 flex cursor-pointer flex-col items-center gap-2 rounded-2xl border-2 p-8 text-center transition ${
           dragging ? 'border-dashed border-brand-500 bg-brand-50' : 'border-stone-200 bg-paper hover:border-stone-300'
@@ -30,7 +41,7 @@ export default function BankStep({ onBack, onNext }: { onBack: () => void; onNex
         <Upload className={`size-7 ${dragging ? 'text-brand-600' : 'text-stone-400'}`} />
         <span className="text-sm font-medium text-stone-700">{dragging ? BANK.drop : BANK.drag}</span>
         <span className="text-xs text-stone-500">{BANK.browse}</span>
-        <input type="file" accept=".json,application/json" className="sr-only" onChange={(e) => e.target.files?.[0] && setFile(e.target.files[0].name)} />
+        <input type="file" accept=".csv,text/csv" className="sr-only" onChange={(e) => e.target.files?.[0] && pick(e.target.files[0])} />
       </label>
 
       {file && (
@@ -39,7 +50,9 @@ export default function BankStep({ onBack, onNext }: { onBack: () => void; onNex
         </div>
       )}
 
-      <Nav onBack={onBack} onNext={onNext} nextLabel={BANK.next} disabled={!file} />
+      {invalid && <p role="alert" className="mt-5 text-sm text-red-700">{BANK.invalid}</p>}
+
+      <Nav onBack={onBack} onNext={() => bank && onNext(bank.data)} nextLabel={BANK.next} disabled={!bank} />
     </>
   )
 }

@@ -1,0 +1,395 @@
+{
+  "name": "Giggle onboarding (POST)",
+  "nodes": [
+    {
+      "id": "ab68cb8d-8abf-446e-a5df-9cbc1514fa05",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        220,
+        300
+      ],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "onboarding",
+        "responseMode": "responseNode",
+        "options": {
+          "allowedOrigins": "*"
+        }
+      },
+      "webhookId": "daf8e43f-b3bd-4f23-9982-405e1a90f5e0"
+    },
+    {
+      "id": "ca55d399-55de-4b24-9ad2-d5f6a053dd27",
+      "name": "Validate",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        440,
+        300
+      ],
+      "parameters": {
+        "jsCode": "// Trust boundary: validate the onboarding POST and parse the raw .ics / .csv into table rows.\nconst b = $('Webhook').first().json.body ?? {};\nconst user_id = String(b.user_id ?? '');\nif (!/^[0-9a-f-]{36}$/i.test(user_id)) throw new Error('user_id must be a UUID');\nconst hourly_pay = Number(b.hourly_pay);\nif (!(hourly_pay > 0 && hourly_pay < 200)) throw new Error('hourly_pay must be between 0 and 200');\nif (typeof b.calendar !== 'string' || typeof b.banking !== 'string') throw new Error('calendar (.ics) and banking (.csv) must be file text');\n\n// shortcut: RRULE is stored raw, not expanded, and TZID times are kept as local wall-clock; expand/convert if the scheduler needs it.\nfunction parseIcs(text) {\n  const iso = (v) => {\n    const m = v.match(/^(\\d{4})(\\d{2})(\\d{2})(?:T(\\d{2})(\\d{2})(\\d{2})(Z?))?$/);\n    return !m ? v : m[4] ? `${m[1]}-${m[2]}-${m[3]}T${m[4]}:${m[5]}:${m[6]}${m[7]}` : `${m[1]}-${m[2]}-${m[3]}`;\n  };\n  const unesc = (v) => v.replace(/\\\\n/gi, '\\n').replace(/\\\\([,;\\\\])/g, '$1');\n  const out = [];\n  let ev = null;\n  for (const line of text.replace(/\\r?\\n[ \\t]/g, '').split(/\\r?\\n/)) {\n    if (line === 'BEGIN:VEVENT') ev = {};\n    else if (line === 'END:VEVENT') {\n      if (ev?.start) out.push({ user_id, title: ev.SUMMARY ?? '', start: ev.start, end: ev.end ?? ev.start, location: ev.LOCATION ?? '', rrule: ev.RRULE ?? '' });\n      ev = null;\n    } else if (ev) {\n      const i = line.indexOf(':');\n      if (i < 0) continue;\n      const name = line.slice(0, i).split(';')[0];\n      const v = line.slice(i + 1);\n      if (name === 'DTSTART') ev.start = iso(v);\n      else if (name === 'DTEND') ev.end = iso(v);\n      else ev[name] = unesc(v);\n    }\n  }\n  return out;\n}\n\nfunction csvRows(text) {\n  const rows = [];\n  let row = [], f = '', q = false;\n  for (let i = 0; i < text.length; i++) {\n    const c = text[i];\n    if (q) {\n      if (c !== '\"') f += c;\n      else if (text[i + 1] === '\"') { f += '\"'; i++; }\n      else q = false;\n    } else if (c === '\"') q = true;\n    else if (c === ',') { row.push(f); f = ''; }\n    else if (c === '\\n' || c === '\\r') {\n      if (c === '\\r' && text[i + 1] === '\\n') i++;\n      row.push(f); rows.push(row); row = []; f = '';\n    } else f += c;\n  }\n  if (f || row.length) { row.push(f); rows.push(row); }\n  return rows.filter((r) => r.some((x) => x.trim()));\n}\n\n// Header-matched so common UK exports work (Monzo/Starling \"Amount\", Barclays/Lloyds \"Paid in/out\" or \"Debit/Credit Amount\").\nfunction parseBank(text) {\n  const [head = [], ...rows] = csvRows(text.replace(/^\\uFEFF/, ''));\n  const h = head.map((x) => x.trim().toLowerCase());\n  const col = (re) => h.findIndex((x) => re.test(x));\n  const out = col(/paid out|money out|debit|withdrawal/), inn = col(/paid in|money in|credit|deposit/);\n  const split = out >= 0 && inn >= 0;\n  const amount = split ? -1 : col(/amount|^value$/);\n  const date = col(/date/), desc = col(/description|name|counter ?party|merchant|payee|details|reference|memo/);\n  const cat = col(/categor/), bal = col(/balance/);\n  if (date < 0 || (!split && amount < 0)) throw new Error('banking CSV needs Date and Amount (or Paid in/Paid out) columns');\n  const num = (v) => { const n = parseFloat(String(v ?? '').replace(/[£$€,\\s]/g, '')); return Number.isFinite(n) ? n : 0; };\n  const ymd = (v = '') => {\n    const m = v.trim().match(/^(\\d{1,2})[/.-](\\d{1,2})[/.-](\\d{4})/); // UK dd/mm/yyyy\n    return m ? `${m[3]}-${m[2].padStart(2, '0')}-${m[1].padStart(2, '0')}` : v.trim().slice(0, 10);\n  };\n  return rows\n    .map((r) => ({\n      user_id,\n      date: ymd(r[date]),\n      description: desc >= 0 ? (r[desc] ?? '').trim() : '',\n      amount: Math.round((split ? num(r[inn]) - num(r[out]) : num(r[amount])) * 100) / 100,\n      category: cat >= 0 ? (r[cat] ?? '').trim() : '',\n      ...(bal >= 0 && r[bal]?.trim() ? { balance: num(r[bal]) } : {}),\n    }))\n    .filter((t) => /^\\d{4}-\\d{2}-\\d{2}$/.test(t.date));\n}\n\nconst events = parseIcs(b.calendar);\nconst transactions = parseBank(b.banking);\nif (!events.length) throw new Error('calendar has no events');\nif (!transactions.length) throw new Error('banking CSV has no transactions with a readable date');\n\nreturn [{ json: {\n  user: {\n    user_id,\n    job: String(b.job ?? '').slice(0, 100),\n    mode: String(b.mode ?? '').slice(0, 50),\n    hourly_pay,\n    preferences: String(b.preferences ?? '').slice(0, 2000),\n    updated_at: new Date().toISOString(),\n  },\n  events,\n  transactions,\n} }];\n"
+      }
+    },
+    {
+      "id": "efb2cd59-77f8-4d68-991c-0dc6bfb3e28b",
+      "name": "Delete user",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1,
+      "position": [
+        660,
+        300
+      ],
+      "parameters": {
+        "resource": "row",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "",
+          "cachedResultName": "users"
+        },
+        "operation": "deleteRows",
+        "matchType": "allConditions",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "user_id",
+              "condition": "eq",
+              "keyValue": "={{ $('Validate').first().json.user.user_id }}"
+            }
+          ]
+        }
+      },
+      "alwaysOutputData": true,
+      "executeOnce": true
+    },
+    {
+      "id": "2c8ed478-eada-4c4a-bcb2-2f73bb1ee571",
+      "name": "Delete calendar",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1,
+      "position": [
+        880,
+        300
+      ],
+      "parameters": {
+        "resource": "row",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "",
+          "cachedResultName": "calendar_events"
+        },
+        "operation": "deleteRows",
+        "matchType": "allConditions",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "user_id",
+              "condition": "eq",
+              "keyValue": "={{ $('Validate').first().json.user.user_id }}"
+            }
+          ]
+        }
+      },
+      "alwaysOutputData": true,
+      "executeOnce": true
+    },
+    {
+      "id": "349d6056-6e79-41de-844f-e03c00dea0cd",
+      "name": "Delete transactions",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1,
+      "position": [
+        1100,
+        300
+      ],
+      "parameters": {
+        "resource": "row",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "",
+          "cachedResultName": "transactions"
+        },
+        "operation": "deleteRows",
+        "matchType": "allConditions",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "user_id",
+              "condition": "eq",
+              "keyValue": "={{ $('Validate').first().json.user.user_id }}"
+            }
+          ]
+        }
+      },
+      "alwaysOutputData": true,
+      "executeOnce": true
+    },
+    {
+      "id": "3da2f097-ee00-4c98-82fe-6e8949ac550e",
+      "name": "User row",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1320,
+        300
+      ],
+      "parameters": {
+        "jsCode": "return [{ json: $('Validate').first().json.user }];"
+      }
+    },
+    {
+      "id": "83419564-5d85-4910-93bc-e98861a1b257",
+      "name": "Insert user",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1,
+      "position": [
+        1540,
+        300
+      ],
+      "parameters": {
+        "resource": "row",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "",
+          "cachedResultName": "users"
+        },
+        "operation": "insert",
+        "columns": {
+          "mappingMode": "autoMapInputData",
+          "value": {},
+          "matchingColumns": [],
+          "schema": []
+        }
+      },
+      "alwaysOutputData": true
+    },
+    {
+      "id": "c86251d7-4cbb-4414-a759-35a65f0b6058",
+      "name": "Calendar rows",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1760,
+        300
+      ],
+      "parameters": {
+        "jsCode": "return $('Validate').first().json.events.map((json) => ({ json }));"
+      }
+    },
+    {
+      "id": "8c153af8-5457-4e8e-ae2b-3a74feb954a4",
+      "name": "Insert calendar",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1,
+      "position": [
+        1980,
+        300
+      ],
+      "parameters": {
+        "resource": "row",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "",
+          "cachedResultName": "calendar_events"
+        },
+        "operation": "insert",
+        "columns": {
+          "mappingMode": "autoMapInputData",
+          "value": {},
+          "matchingColumns": [],
+          "schema": []
+        }
+      },
+      "alwaysOutputData": true
+    },
+    {
+      "id": "6f38423f-3802-445d-8287-207c686a9527",
+      "name": "Transaction rows",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2200,
+        300
+      ],
+      "parameters": {
+        "jsCode": "return $('Validate').first().json.transactions.map((json) => ({ json }));"
+      }
+    },
+    {
+      "id": "15b76e7a-6129-4719-a245-2d9da0c1acc4",
+      "name": "Insert transactions",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1,
+      "position": [
+        2420,
+        300
+      ],
+      "parameters": {
+        "resource": "row",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "",
+          "cachedResultName": "transactions"
+        },
+        "operation": "insert",
+        "columns": {
+          "mappingMode": "autoMapInputData",
+          "value": {},
+          "matchingColumns": [],
+          "schema": []
+        }
+      },
+      "alwaysOutputData": true
+    },
+    {
+      "id": "04ecb6b5-3bd8-469d-b349-12bffdaf7f0b",
+      "name": "Respond",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        2640,
+        300
+      ],
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify({ ok: true, user_id: $('Validate').first().json.user.user_id, events: $('Validate').first().json.events.length, transactions: $('Validate').first().json.transactions.length }) }}",
+        "options": {}
+      },
+      "executeOnce": true
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Validate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validate": {
+      "main": [
+        [
+          {
+            "node": "Delete user",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Delete user": {
+      "main": [
+        [
+          {
+            "node": "Delete calendar",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Delete calendar": {
+      "main": [
+        [
+          {
+            "node": "Delete transactions",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Delete transactions": {
+      "main": [
+        [
+          {
+            "node": "User row",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "User row": {
+      "main": [
+        [
+          {
+            "node": "Insert user",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Insert user": {
+      "main": [
+        [
+          {
+            "node": "Calendar rows",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Calendar rows": {
+      "main": [
+        [
+          {
+            "node": "Insert calendar",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Insert calendar": {
+      "main": [
+        [
+          {
+            "node": "Transaction rows",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Transaction rows": {
+      "main": [
+        [
+          {
+            "node": "Insert transactions",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Insert transactions": {
+      "main": [
+        [
+          {
+            "node": "Respond",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  }
+}
