@@ -1,0 +1,88 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Scheduler constraints (LLM output)",
+  "description": "No weight = hard. weight = soft, penalty per violation. Times on a 30-min grid. Lectures, pay rate and money already earned are supplied by Python, not here.",
+  "type": "object",
+  "required": ["constraints"],
+  "additionalProperties": false,
+  "properties": {
+    "hourly_rate": { "type": "number", "exclusiveMinimum": 0, "description": "GBP/hour, read from the user's financial data. Used by `earn`." },
+    "constraints": {
+      "type": "array",
+      "items": {
+        "oneOf": [
+          { "$ref": "#/$defs/avoid" },
+          { "$ref": "#/$defs/hours" },
+          { "$ref": "#/$defs/shift" },
+          { "$ref": "#/$defs/earn" }
+        ]
+      }
+    }
+  },
+  "$defs": {
+    "avoid": {
+      "description": "Don't work in these slots. Omitted days = every day; omitted from/to = whole day.",
+      "type": "object",
+      "required": ["type", "label"],
+      "additionalProperties": false,
+      "properties": {
+        "type": { "const": "avoid" },
+        "label": { "$ref": "#/$defs/label" },
+        "days": { "$ref": "#/$defs/days" },
+        "from": { "$ref": "#/$defs/time" },
+        "to": { "$ref": "#/$defs/time" },
+        "weight": { "$ref": "#/$defs/weight" }
+      }
+    },
+    "hours": {
+      "description": "Min and/or max hours worked, per day or per week, optionally only on some days.",
+      "type": "object",
+      "required": ["type", "label", "per"],
+      "anyOf": [{ "required": ["min"] }, { "required": ["max"] }],
+      "additionalProperties": false,
+      "properties": {
+        "type": { "const": "hours" },
+        "label": { "$ref": "#/$defs/label" },
+        "per": { "enum": ["day", "week"] },
+        "min": { "type": "number", "minimum": 0, "multipleOf": 0.5 },
+        "max": { "type": "number", "minimum": 0, "multipleOf": 0.5 },
+        "days": { "$ref": "#/$defs/days" },
+        "weight": { "$ref": "#/$defs/weight" }
+      }
+    },
+    "shift": {
+      "description": "Shape of each continuous block of work.",
+      "type": "object",
+      "required": ["type", "label"],
+      "anyOf": [{ "required": ["min_h"] }, { "required": ["max_h"] }, { "required": ["max_per_day"] }],
+      "additionalProperties": false,
+      "properties": {
+        "type": { "const": "shift" },
+        "label": { "$ref": "#/$defs/label" },
+        "min_h": { "type": "number", "exclusiveMinimum": 0, "multipleOf": 0.5 },
+        "max_h": { "type": "number", "exclusiveMinimum": 0, "multipleOf": 0.5 },
+        "max_per_day": { "type": "integer", "minimum": 1 }
+      }
+    },
+    "earn": {
+      "description": "Earn at least `amount` GBP (on top of what's already earned is handled by Python) before `by`.",
+      "type": "object",
+      "required": ["type", "label", "amount", "by"],
+      "additionalProperties": false,
+      "properties": {
+        "type": { "const": "earn" },
+        "label": { "$ref": "#/$defs/label" },
+        "amount": { "type": "number", "exclusiveMinimum": 0 },
+        "by": { "type": "string", "format": "date", "pattern": "^\\d{4}-\\d{2}-\\d{2}$" },
+        "weight": { "$ref": "#/$defs/weight" }
+      }
+    },
+    "label": { "type": "string", "minLength": 1, "description": "Plain English, echoed back to the user." },
+    "weight": { "type": "integer", "minimum": 1, "maximum": 1000 },
+    "days": {
+      "type": "array", "minItems": 1, "uniqueItems": true,
+      "items": { "enum": ["mon", "tue", "wed", "thu", "fri", "sat", "sun"] }
+    },
+    "time": { "type": "string", "pattern": "^(([01]\\d|2[0-3]):(00|30)|24:00)$" }
+  }
+}

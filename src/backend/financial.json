@@ -1,0 +1,47 @@
+{
+  "hourly_rate": 18.29,
+  "constraints": [
+    {
+      "type": "earn",
+      "label": "\u00a31019 by 16 Nov (bills + essentials)",
+      "amount": 1018.95,
+      "by": "2026-11-16",
+      "weight": 1000
+    },
+    {
+      "type": "earn",
+      "label": "\u00a31338 by 16 Nov (+ clear overdraft)",
+      "amount": 1338.07,
+      "by": "2026-11-16",
+      "weight": 100
+    },
+    {
+      "type": "earn",
+      "label": "\u00a31422 by 16 Nov (+ usual extras)",
+      "amount": 1421.59,
+      "by": "2026-11-16",
+      "weight": 10
+    },
+    {
+      "type": "earn",
+      "label": "\u00a31180 by 23 Nov (bills + essentials)",
+      "amount": 1180.19,
+      "by": "2026-11-23",
+      "weight": 1000
+    },
+    {
+      "type": "earn",
+      "label": "\u00a31499 by 23 Nov (+ clear overdraft)",
+      "amount": 1499.31,
+      "by": "2026-11-23",
+      "weight": 100
+    },
+    {
+      "type": "earn",
+      "label": "\u00a31641 by 23 Nov (+ usual extras)",
+      "amount": 1640.81,
+      "by": "2026-11-23",
+      "weight": 10
+    }
+  ]
+}
