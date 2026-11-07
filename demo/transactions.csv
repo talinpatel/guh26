@@ -1,0 +1,208 @@
+worker_id,date,time,type,category,subcategory,description,amount_gbp,currency,shift_id,bill_id,payment_group,basis,transaction_id,running_balance_gbp,overdraft_flag
+GIG_UK_001,2026-08-01,12:00,expense,Food,Groceries,Aldi grocery shop,-32.79,GBP,,,,simulated,T0001,487.21,0
+GIG_UK_001,2026-08-01,12:00,expense,Household,Household supplies,Toiletries and household essentials,-10.91,GBP,,,,simulated,T0002,476.3,0
+GIG_UK_001,2026-08-01,12:00,expense,Housing,Rent,Room rent to landlord,-650,GBP,,RENT-08,,simulated,T0003,-173.7,1
+GIG_UK_001,2026-08-01,12:00,expense,Transport,Work fuel,Fuel for delivery shifts,-11.48,GBP,S0001,,,simulated,T0004,-185.18,1
+GIG_UK_001,2026-08-02,12:00,expense,Transport,Work fuel,Fuel for delivery shifts,-7.16,GBP,S0002,,,simulated,T0005,-192.34,1
+GIG_UK_001,2026-08-03,12:00,income,Gig income,Platform payout,Weekly delivery payout for 2 shifts,187.93,GBP,,,2026-08-03,simulated,T0006,-4.41,1
+GIG_UK_001,2026-08-03,12:00,expense,Food,Groceries,Lidl groceries,-31.84,GBP,,,,simulated,T0007,-36.25,1
+GIG_UK_001,2026-08-03,12:00,expense,Transport,Work fuel,Fuel for delivery shifts,-8.97,GBP,S0003,,,simulated,T0008,-45.22,1
+GIG_UK_001,2026-08-04,12:00,expense,Housing,Council tax contribution,Shared household council tax,-65,GBP,,COUNCIL-08,,simulated,T0009,-110.22,1
+GIG_UK_001,2026-08-04,12:00,expense,Transport,Work fuel,Fuel for delivery shifts,-6.24,GBP,S0004,,,simulated,T0010,-116.46,1
+GIG_UK_001,2026-08-06,12:00,expense,Food,Groceries,Lidl groceries,-29.94,GBP,,,,simulated,T0011,-146.4,1
+GIG_UK_001,2026-08-06,12:00,expense,Food,Snacks / meals,Meal deal,-7.38,GBP,,,,simulated,T0012,-153.78,1
+GIG_UK_001,2026-08-06,12:00,expense,Miscellaneous,Personal / health,Pharmacy or personal care,-7.6,GBP,,,,simulated,T0013,-161.38,1
+GIG_UK_001,2026-08-06,12:00,expense,Transport,Work fuel,Fuel for delivery shifts,-10.98,GBP,S0005,,,simulated,T0014,-172.36,1
+GIG_UK_001,2026-08-07,12:00,expense,Transport,Work fuel,Fuel for delivery shifts,-8.12,GBP,S0006,,,simulated,T0015,-180.48,1
+GIG_UK_001,2026-08-08,12:00,expense,Food,Groceries,Tesco essentials,-22.74,GBP,,,,simulated,T0016,-203.22,1
+GIG_UK_001,2026-08-08,12:00,expense,Housing,Gas & electricity,Energy direct debit,-72,GBP,,ENERGY-08,,simulated,T0017,-275.22,1
+GIG_UK_001,2026-08-10,12:00,income,Gig income,Platform payout,Weekly delivery payout for 4 shifts,307.67,GBP,,,2026-08-10,simulated,T0018,32.45,0
+GIG_UK_001,2026-08-10,12:00,expense,Food,Groceries,Aldi grocery shop,-31.86,GBP,,,,simulated,T0019,0.59,0
+GIG_UK_001,2026-08-10,12:00,expense,Transport,Work fuel,Fuel for delivery shifts,-9.14,GBP,S0007,,,simulated,T0020,-8.55,1
+GIG_UK_001,2026-08-11,12:00,expense,Household,Household supplies,Toiletries and household essentials,-9.9,GBP,,,,simulated,T0021,-18.45,1
+GIG_UK_001,2026-08-11,12:00,expense,Transport,Work fuel,Fuel for delivery shifts,-10.17,GBP,S0008,,,simulated,T0022,-28.62,1
+GIG_UK_001,2026-08-12,12:00,expense,Communication,Home broadband,Broadband direct debit,-27,GBP,,INTERNET-08,,simulated,T0023,-55.62,1
+GIG_UK_001,2026-08-13,12:00,expense,Food,Groceries,Lidl groceries,-32.1,GBP,,,,simulated,T0024,-87.72,1
+GIG_UK_001,2026-08-13,12:00,expense,Transport,Work fuel,Fuel for delivery shifts,-7.77,GBP,S0009,,,simulated,T0025,-95.49,1
+GIG_UK_001,2026-08-14,12:00,expense,Communication,Mobile plan,Mobile data & calls,-18,GBP,,PHONE-08,,simulated,T0026,-113.49,1
+GIG_UK_001,2026-08-14,12:00,expense,Food,Snacks / meals,Lunch on the go,-6.52,GBP,,,,simulated,T0027,-120.01,1
+GIG_UK_001,2026-08-14,12:00,expense,Transport,Work fuel,Fuel for delivery shifts,-8.25,GBP,S0010,,,simulated,T0028,-128.26,1
+GIG_UK_001,2026-08-15,12:00,expense,Food,Groceries,Aldi grocery shop,-32.74,GBP,,,,simulated,T0029,-161.0,1
+GIG_UK_001,2026-08-15,12:00,expense,Food,Snacks / meals,Meal deal,-6.77,GBP,,,,simulated,T0030,-167.77,1
+GIG_UK_001,2026-08-15,12:00,expense,Transport,Work fuel,Fuel for delivery shifts,-7.54,GBP,S0011,,,simulated,T0031,-175.31,1
+GIG_UK_001,2026-08-16,12:00,expense,Food,Snacks / meals,Coffee and snack,-4.64,GBP,,,,simulated,T0032,-179.95,1
+GIG_UK_001,2026-08-16,12:00,expense,Recreation,Entertainment,Cinema / social activity,-19.82,GBP,,,,simulated,T0033,-199.77,1
+GIG_UK_001,2026-08-17,12:00,income,Gig income,Platform payout,Weekly delivery payout for 5 shifts,398.4,GBP,,,2026-08-17,simulated,T0034,198.63,0
+GIG_UK_001,2026-08-17,12:00,expense,Food,Groceries,Lidl groceries,-23.34,GBP,,,,simulated,T0035,175.29,0
+GIG_UK_001,2026-08-17,12:00,expense,Miscellaneous,Personal / health,Pharmacy or personal care,-4.73,GBP,,,,simulated,T0036,170.56,0
+GIG_UK_001,2026-08-17,12:00,expense,Transport,Work fuel,Fuel for delivery shifts,-6.92,GBP,S0012,,,simulated,T0037,163.64,0
+GIG_UK_001,2026-08-18,12:00,expense,Food,Snacks / meals,Meal deal,-7.76,GBP,,,,simulated,T0038,155.88,0
+GIG_UK_001,2026-08-18,12:00,expense,Household,Household supplies,Toiletries and household essentials,-10.77,GBP,,,,simulated,T0039,145.11,0
+GIG_UK_001,2026-08-18,12:00,expense,Transport,Work fuel,Fuel for delivery shifts,-6.06,GBP,S0013,,,simulated,T0040,139.05,0
+GIG_UK_001,2026-08-18,12:00,expense,Transport,Vehicle insurance,Motor insurance,-74,GBP,,INSURANCE-08,,simulated,T0041,65.05,0
+GIG_UK_001,2026-08-19,12:00,expense,Food,Snacks / meals,Meal deal,-6.46,GBP,,,,simulated,T0042,58.59,0
+GIG_UK_001,2026-08-20,12:00,expense,Food,Groceries,Aldi grocery shop,-24.65,GBP,,,,simulated,T0043,33.94,0
+GIG_UK_001,2026-08-20,12:00,expense,Transport,Work fuel,Fuel for delivery shifts,-8.17,GBP,S0014,,,simulated,T0044,25.77,0
+GIG_UK_001,2026-08-21,12:00,expense,Restaurants,Eating out,Takeaway meal,-11.63,GBP,,,,simulated,T0045,14.14,0
+GIG_UK_001,2026-08-21,12:00,expense,Transport,Work fuel,Fuel for delivery shifts,-6.63,GBP,S0015,,,simulated,T0046,7.51,0
+GIG_UK_001,2026-08-22,12:00,expense,Food,Groceries,Tesco essentials,-21.09,GBP,,,,simulated,T0047,-13.58,1
+GIG_UK_001,2026-08-22,12:00,expense,Recreation,Gym membership,Gym subscription,-19,GBP,,GYM-08,,simulated,T0048,-32.58,1
+GIG_UK_001,2026-08-22,12:00,expense,Restaurants,Eating out,Casual dining,-11.92,GBP,,,,simulated,T0049,-44.5,1
+GIG_UK_001,2026-08-22,12:00,expense,Transport,Work fuel,Fuel for delivery shifts,-6.79,GBP,S0016,,,simulated,T0050,-51.29,1
+GIG_UK_001,2026-08-23,12:00,expense,Food,Snacks / meals,Meal deal,-6.78,GBP,,,,simulated,T0051,-58.07,1
+GIG_UK_001,2026-08-23,12:00,expense,Miscellaneous,Personal / health,Pharmacy or personal care,-7.09,GBP,,,,simulated,T0052,-65.16,1
+GIG_UK_001,2026-08-24,12:00,income,Gig income,Platform payout,Weekly delivery payout for 5 shifts,314.52,GBP,,,2026-08-24,simulated,T0053,249.36,0
+GIG_UK_001,2026-08-24,12:00,expense,Food,Groceries,Tesco essentials,-24.06,GBP,,,,simulated,T0054,225.3,0
+GIG_UK_001,2026-08-25,12:00,expense,Debt repayment,Vehicle loan,Monthly vehicle repayment,-62,GBP,,FINANCE-08,,simulated,T0055,163.3,0
+GIG_UK_001,2026-08-26,12:00,expense,Clothing,Clothing and footwear,Clothing purchase,-18.13,GBP,,,,simulated,T0056,145.17,0
+GIG_UK_001,2026-08-26,12:00,expense,Food,Snacks / meals,Meal deal,-3.9,GBP,,,,simulated,T0057,141.27,0
+GIG_UK_001,2026-08-27,12:00,expense,Food,Groceries,Tesco essentials,-33.23,GBP,,,,simulated,T0058,108.04,0
+GIG_UK_001,2026-08-27,12:00,expense,Transport,Work fuel,Fuel for delivery shifts,-8.83,GBP,S0017,,,simulated,T0059,99.21,0
+GIG_UK_001,2026-08-28,12:00,expense,Transport,Work fuel,Fuel for delivery shifts,-8.92,GBP,S0018,,,simulated,T0060,90.29,0
+GIG_UK_001,2026-08-29,12:00,expense,Food,Groceries,Aldi grocery shop,-19.0,GBP,,,,simulated,T0061,71.29,0
+GIG_UK_001,2026-08-29,12:00,expense,Restaurants,Eating out,Casual dining,-18.22,GBP,,,,simulated,T0062,53.07,0
+GIG_UK_001,2026-08-29,12:00,expense,Transport,Work fuel,Fuel for delivery shifts,-7.58,GBP,S0019,,,simulated,T0063,45.49,0
+GIG_UK_001,2026-08-30,12:00,expense,Miscellaneous,Personal / health,Pharmacy or personal care,-4.28,GBP,,,,simulated,T0064,41.21,0
+GIG_UK_001,2026-08-31,12:00,income,Gig income,Platform payout,Weekly delivery payout for 3 shifts,288.91,GBP,,,2026-08-31,simulated,T0065,330.12,0
+GIG_UK_001,2026-08-31,12:00,expense,Food,Groceries,Lidl groceries,-24.05,GBP,,,,simulated,T0066,306.07,0
+GIG_UK_001,2026-08-31,12:00,expense,Transport,Work fuel,Fuel for delivery shifts,-7.27,GBP,S0020,,,simulated,T0067,298.8,0
+GIG_UK_001,2026-09-01,12:00,expense,Housing,Rent,Room rent to landlord,-650,GBP,,RENT-09,,simulated,T0068,-351.2,1
+GIG_UK_001,2026-09-01,12:00,expense,Transport,Work fuel,Fuel for delivery shifts,-11.95,GBP,S0021,,,simulated,T0069,-363.15,1
+GIG_UK_001,2026-09-02,12:00,expense,Restaurants,Eating out,Casual dining,-10.24,GBP,,,,simulated,T0070,-373.39,1
+GIG_UK_001,2026-09-03,12:00,expense,Food,Groceries,Tesco essentials,-28.99,GBP,,,,simulated,T0071,-402.38,1
+GIG_UK_001,2026-09-03,12:00,expense,Transport,Work fuel,Fuel for delivery shifts,-9.69,GBP,S0022,,,simulated,T0072,-412.07,1
+GIG_UK_001,2026-09-04,12:00,expense,Food,Snacks / meals,Coffee and snack,-6.06,GBP,,,,simulated,T0073,-418.13,1
+GIG_UK_001,2026-09-04,12:00,expense,Housing,Council tax contribution,Shared household council tax,-65,GBP,,COUNCIL-09,,simulated,T0074,-483.13,1
+GIG_UK_001,2026-09-04,12:00,expense,Transport,Work fuel,Fuel for delivery shifts,-5.12,GBP,S0023,,,simulated,T0075,-488.25,1
+GIG_UK_001,2026-09-05,12:00,expense,Food,Groceries,Tesco essentials,-31.95,GBP,,,,simulated,T0076,-520.2,1
+GIG_UK_001,2026-09-05,12:00,expense,Restaurants,Eating out,Casual dining,-14.11,GBP,,,,simulated,T0077,-534.31,1
+GIG_UK_001,2026-09-05,12:00,expense,Transport,Work fuel,Fuel for delivery shifts,-9.99,GBP,S0024,,,simulated,T0078,-544.3,1
+GIG_UK_001,2026-09-06,12:00,expense,Food,Snacks / meals,Coffee and snack,-5.59,GBP,,,,simulated,T0079,-549.89,1
+GIG_UK_001,2026-09-07,12:00,income,Gig income,Platform payout,Weekly delivery payout for 5 shifts,415.71,GBP,,,2026-09-07,simulated,T0080,-134.18,1
+GIG_UK_001,2026-09-07,12:00,expense,Food,Groceries,Tesco essentials,-19.81,GBP,,,,simulated,T0081,-153.99,1
+GIG_UK_001,2026-09-07,12:00,expense,Transport,Work fuel,Fuel for delivery shifts,-12.5,GBP,S0025,,,simulated,T0082,-166.49,1
+GIG_UK_001,2026-09-08,12:00,expense,Household,Household supplies,Toiletries and household essentials,-7.19,GBP,,,,simulated,T0083,-173.68,1
+GIG_UK_001,2026-09-08,12:00,expense,Housing,Gas & electricity,Energy direct debit,-72,GBP,,ENERGY-09,,simulated,T0084,-245.68,1
+GIG_UK_001,2026-09-08,12:00,expense,Transport,Work fuel,Fuel for delivery shifts,-8.0,GBP,S0026,,,simulated,T0085,-253.68,1
+GIG_UK_001,2026-09-09,12:00,expense,Transport,Work fuel,Fuel for delivery shifts,-9.3,GBP,S0027,,,simulated,T0086,-262.98,1
+GIG_UK_001,2026-09-10,12:00,expense,Food,Groceries,Aldi grocery shop,-22.66,GBP,,,,simulated,T0087,-285.64,1
+GIG_UK_001,2026-09-10,12:00,expense,Food,Snacks / meals,Meal deal,-5.88,GBP,,,,simulated,T0088,-291.52,1
+GIG_UK_001,2026-09-10,12:00,expense,Transport,Work fuel,Fuel for delivery shifts,-7.62,GBP,S0028,,,simulated,T0089,-299.14,1
+GIG_UK_001,2026-09-11,12:00,expense,Food,Snacks / meals,Coffee and snack,-8.28,GBP,,,,simulated,T0090,-307.42,1
+GIG_UK_001,2026-09-11,12:00,expense,Transport,Work fuel,Fuel for delivery shifts,-8.64,GBP,S0029,,,simulated,T0091,-316.06,1
+GIG_UK_001,2026-09-12,12:00,expense,Communication,Home broadband,Broadband direct debit,-27,GBP,,INTERNET-09,,simulated,T0092,-343.06,1
+GIG_UK_001,2026-09-12,12:00,expense,Food,Groceries,Aldi grocery shop,-25.25,GBP,,,,simulated,T0093,-368.31,1
+GIG_UK_001,2026-09-12,12:00,expense,Transport,Work fuel,Fuel for delivery shifts,-7.59,GBP,S0030,,,simulated,T0094,-375.9,1
+GIG_UK_001,2026-09-13,12:00,expense,Food,Snacks / meals,Lunch on the go,-3.52,GBP,,,,simulated,T0095,-379.42,1
+GIG_UK_001,2026-09-14,12:00,income,Gig income,Platform payout,Weekly delivery payout for 6 shifts,517.31,GBP,,,2026-09-14,simulated,T0096,137.89,0
+GIG_UK_001,2026-09-14,12:00,expense,Communication,Mobile plan,Mobile data & calls,-18,GBP,,PHONE-09,,simulated,T0097,119.89,0
+GIG_UK_001,2026-09-14,12:00,expense,Food,Groceries,Tesco essentials,-18.11,GBP,,,,simulated,T0098,101.78,0
+GIG_UK_001,2026-09-14,12:00,expense,Transport,Work fuel,Fuel for delivery shifts,-10.94,GBP,S0031,,,simulated,T0099,90.84,0
+GIG_UK_001,2026-09-14,12:00,expense,Transport,Parking,Parking during delivery work,-1.76,GBP,S0031,,,simulated,T0100,89.08,0
+GIG_UK_001,2026-09-15,12:00,expense,Transport,Work fuel,Fuel for delivery shifts,-13.57,GBP,S0032,,,simulated,T0101,75.51,0
+GIG_UK_001,2026-09-16,12:00,expense,Miscellaneous,Personal / health,Pharmacy or personal care,-4.84,GBP,,,,simulated,T0102,70.67,0
+GIG_UK_001,2026-09-17,12:00,expense,Food,Snacks / meals,Coffee and snack,-5.57,GBP,,,,simulated,T0103,65.1,0
+GIG_UK_001,2026-09-17,12:00,expense,Food,Groceries,Tesco essentials,-28.48,GBP,,,,simulated,T0104,36.62,0
+GIG_UK_001,2026-09-17,12:00,expense,Restaurants,Eating out,Cafe food,-16.9,GBP,,,,simulated,T0105,19.72,0
+GIG_UK_001,2026-09-17,12:00,expense,Transport,Work fuel,Fuel for delivery shifts,-5.85,GBP,S0033,,,simulated,T0106,13.87,0
+GIG_UK_001,2026-09-17,12:00,expense,Transport,Vehicle repair,Urgent bike/vehicle repair (shock),-183.5,GBP,,,,scenario shock (assumption),T0107,-169.63,1
+GIG_UK_001,2026-09-18,12:00,expense,Transport,Work fuel,Fuel for delivery shifts,-12.27,GBP,S0034,,,simulated,T0108,-181.9,1
+GIG_UK_001,2026-09-18,12:00,expense,Transport,Vehicle insurance,Motor insurance,-74,GBP,,INSURANCE-09,,simulated,T0109,-255.9,1
+GIG_UK_001,2026-09-19,12:00,expense,Food,Groceries,Aldi grocery shop,-18.51,GBP,,,,simulated,T0110,-274.41,1
+GIG_UK_001,2026-09-19,12:00,expense,Transport,Work fuel,Fuel for delivery shifts,-11.12,GBP,S0035,,,simulated,T0111,-285.53,1
+GIG_UK_001,2026-09-21,12:00,income,Gig income,Platform payout,Weekly delivery payout for 5 shifts,370.09,GBP,,,2026-09-21,simulated,T0112,84.56,0
+GIG_UK_001,2026-09-21,12:00,expense,Food,Snacks / meals,Meal deal,-7.95,GBP,,,,simulated,T0113,76.61,0
+GIG_UK_001,2026-09-21,12:00,expense,Food,Groceries,Tesco essentials,-18.68,GBP,,,,simulated,T0114,57.93,0
+GIG_UK_001,2026-09-21,12:00,expense,Transport,Work fuel,Fuel for delivery shifts,-8.19,GBP,S0036,,,simulated,T0115,49.74,0
+GIG_UK_001,2026-09-22,12:00,expense,Household,Household supplies,Toiletries and household essentials,-14.18,GBP,,,,simulated,T0116,35.56,0
+GIG_UK_001,2026-09-22,12:00,expense,Recreation,Gym membership,Gym subscription,-19,GBP,,GYM-09,,simulated,T0117,16.56,0
+GIG_UK_001,2026-09-22,12:00,expense,Restaurants,Eating out,Takeaway meal,-13.5,GBP,,,,simulated,T0118,3.06,0
+GIG_UK_001,2026-09-24,12:00,expense,Food,Groceries,Aldi grocery shop,-29.41,GBP,,,,simulated,T0119,-26.35,1
+GIG_UK_001,2026-09-24,12:00,expense,Transport,Work fuel,Fuel for delivery shifts,-5.21,GBP,S0037,,,simulated,T0120,-31.56,1
+GIG_UK_001,2026-09-25,12:00,expense,Debt repayment,Vehicle loan,Monthly vehicle repayment,-62,GBP,,FINANCE-09,,simulated,T0121,-93.56,1
+GIG_UK_001,2026-09-25,12:00,expense,Transport,Work fuel,Fuel for delivery shifts,-6.24,GBP,S0038,,,simulated,T0122,-99.8,1
+GIG_UK_001,2026-09-26,12:00,expense,Food,Groceries,Tesco essentials,-27.32,GBP,,,,simulated,T0123,-127.12,1
+GIG_UK_001,2026-09-26,12:00,expense,Household,Household supplies,Toiletries and household essentials,-13.92,GBP,,,,simulated,T0124,-141.04,1
+GIG_UK_001,2026-09-26,12:00,expense,Transport,Work fuel,Fuel for delivery shifts,-9.29,GBP,S0039,,,simulated,T0125,-150.33,1
+GIG_UK_001,2026-09-27,12:00,expense,Food,Snacks / meals,Coffee and snack,-7.0,GBP,,,,simulated,T0126,-157.33,1
+GIG_UK_001,2026-09-27,12:00,expense,Miscellaneous,Personal / health,Pharmacy or personal care,-7.92,GBP,,,,simulated,T0127,-165.25,1
+GIG_UK_001,2026-09-28,12:00,income,Gig income,Platform payout,Weekly delivery payout for 4 shifts,297.22,GBP,,,2026-09-28,simulated,T0128,131.97,0
+GIG_UK_001,2026-09-28,12:00,expense,Food,Groceries,Lidl groceries,-24.14,GBP,,,,simulated,T0129,107.83,0
+GIG_UK_001,2026-09-28,12:00,expense,Food,Snacks / meals,Meal deal,-6.53,GBP,,,,simulated,T0130,101.3,0
+GIG_UK_001,2026-09-28,12:00,expense,Transport,Work fuel,Fuel for delivery shifts,-14.17,GBP,S0040,,,simulated,T0131,87.13,0
+GIG_UK_001,2026-09-28,12:00,expense,Transport,Parking,Parking during delivery work,-2.81,GBP,S0040,,,simulated,T0132,84.32,0
+GIG_UK_001,2026-09-29,12:00,expense,Transport,Work fuel,Fuel for delivery shifts,-12.56,GBP,S0041,,,simulated,T0133,71.76,0
+GIG_UK_001,2026-10-01,12:00,expense,Food,Groceries,Aldi grocery shop,-18.87,GBP,,,,simulated,T0134,52.89,0
+GIG_UK_001,2026-10-01,12:00,expense,Housing,Rent,Room rent to landlord,-650,GBP,,RENT-10,,simulated,T0135,-597.11,1
+GIG_UK_001,2026-10-01,12:00,expense,Restaurants,Eating out,Casual dining,-14.74,GBP,,,,simulated,T0136,-611.85,1
+GIG_UK_001,2026-10-02,12:00,expense,Food,Snacks / meals,Meal deal,-9.53,GBP,,,,simulated,T0137,-621.38,1
+GIG_UK_001,2026-10-02,12:00,expense,Transport,Work fuel,Fuel for delivery shifts,-13.07,GBP,S0042,,,simulated,T0138,-634.45,1
+GIG_UK_001,2026-10-03,12:00,expense,Food,Snacks / meals,Meal deal,-5.86,GBP,,,,simulated,T0139,-640.31,1
+GIG_UK_001,2026-10-03,12:00,expense,Food,Groceries,Tesco essentials,-28.9,GBP,,,,simulated,T0140,-669.21,1
+GIG_UK_001,2026-10-03,12:00,expense,Household,Household supplies,Toiletries and household essentials,-5.46,GBP,,,,simulated,T0141,-674.67,1
+GIG_UK_001,2026-10-03,12:00,expense,Restaurants,Eating out,Cafe food,-11.33,GBP,,,,simulated,T0142,-686.0,1
+GIG_UK_001,2026-10-04,12:00,expense,Housing,Council tax contribution,Shared household council tax,-65,GBP,,COUNCIL-10,,simulated,T0143,-751.0,1
+GIG_UK_001,2026-10-05,12:00,income,Gig income,Platform payout,Weekly delivery payout for 3 shifts,315.09,GBP,,,2026-10-05,simulated,T0144,-435.91,1
+GIG_UK_001,2026-10-05,12:00,expense,Food,Groceries,Aldi grocery shop,-30.04,GBP,,,,simulated,T0145,-465.95,1
+GIG_UK_001,2026-10-05,12:00,expense,Food,Snacks / meals,Meal deal,-7.64,GBP,,,,simulated,T0146,-473.59,1
+GIG_UK_001,2026-10-05,12:00,expense,Restaurants,Eating out,Casual dining,-14.58,GBP,,,,simulated,T0147,-488.17,1
+GIG_UK_001,2026-10-06,12:00,expense,Household,Essential replacement,Replacement work phone battery,-48.0,GBP,,,,scenario shock (assumption),T0148,-536.17,1
+GIG_UK_001,2026-10-06,12:00,expense,Recreation,Entertainment,Cinema / social activity,-8.52,GBP,,,,simulated,T0149,-544.69,1
+GIG_UK_001,2026-10-06,12:00,expense,Transport,Work fuel,Fuel for delivery shifts,-6.19,GBP,S0043,,,simulated,T0150,-550.88,1
+GIG_UK_001,2026-10-07,12:00,expense,Food,Snacks / meals,Meal deal,-6.8,GBP,,,,simulated,T0151,-557.68,1
+GIG_UK_001,2026-10-07,12:00,expense,Miscellaneous,Personal / health,Pharmacy or personal care,-11.54,GBP,,,,simulated,T0152,-569.22,1
+GIG_UK_001,2026-10-08,12:00,expense,Food,Groceries,Lidl groceries,-28.98,GBP,,,,simulated,T0153,-598.2,1
+GIG_UK_001,2026-10-08,12:00,expense,Housing,Gas & electricity,Energy direct debit,-72,GBP,,ENERGY-10,,simulated,T0154,-670.2,1
+GIG_UK_001,2026-10-08,12:00,expense,Restaurants,Eating out,Takeaway meal,-9.8,GBP,,,,simulated,T0155,-680.0,1
+GIG_UK_001,2026-10-08,12:00,expense,Transport,Work fuel,Fuel for delivery shifts,-6.91,GBP,S0044,,,simulated,T0156,-686.91,1
+GIG_UK_001,2026-10-09,12:00,expense,Food,Snacks / meals,Coffee and snack,-3.96,GBP,,,,simulated,T0157,-690.87,1
+GIG_UK_001,2026-10-09,12:00,expense,Transport,Work fuel,Fuel for delivery shifts,-7.38,GBP,S0045,,,simulated,T0158,-698.25,1
+GIG_UK_001,2026-10-10,12:00,expense,Food,Groceries,Lidl groceries,-31.67,GBP,,,,simulated,T0159,-729.92,1
+GIG_UK_001,2026-10-10,12:00,expense,Food,Snacks / meals,Meal deal,-3.4,GBP,,,,simulated,T0160,-733.32,1
+GIG_UK_001,2026-10-10,12:00,expense,Household,Household supplies,Toiletries and household essentials,-14.51,GBP,,,,simulated,T0161,-747.83,1
+GIG_UK_001,2026-10-10,12:00,expense,Transport,Work fuel,Fuel for delivery shifts,-10.74,GBP,S0046,,,simulated,T0162,-758.57,1
+GIG_UK_001,2026-10-11,12:00,expense,Food,Snacks / meals,Coffee and snack,-7.81,GBP,,,,simulated,T0163,-766.38,1
+GIG_UK_001,2026-10-11,12:00,expense,Transport,Work fuel,Fuel for delivery shifts,-5.31,GBP,S0047,,,simulated,T0164,-771.69,1
+GIG_UK_001,2026-10-12,12:00,income,Gig income,Platform payout,Weekly delivery payout for 5 shifts,380.34,GBP,,,2026-10-12,simulated,T0165,-391.35,1
+GIG_UK_001,2026-10-12,12:00,expense,Clothing,Clothing and footwear,Clothing purchase,-10.39,GBP,,,,simulated,T0166,-401.74,1
+GIG_UK_001,2026-10-12,12:00,expense,Communication,Home broadband,Broadband direct debit,-27,GBP,,INTERNET-10,,simulated,T0167,-428.74,1
+GIG_UK_001,2026-10-12,12:00,expense,Food,Groceries,Tesco essentials,-26.59,GBP,,,,simulated,T0168,-455.33,1
+GIG_UK_001,2026-10-12,12:00,expense,Transport,Work fuel,Fuel for delivery shifts,-7.55,GBP,S0048,,,simulated,T0169,-462.88,1
+GIG_UK_001,2026-10-13,12:00,expense,Food,Snacks / meals,Meal deal,-6.22,GBP,,,,simulated,T0170,-469.1,1
+GIG_UK_001,2026-10-14,12:00,expense,Communication,Mobile plan,Mobile data & calls,-18,GBP,,PHONE-10,,simulated,T0171,-487.1,1
+GIG_UK_001,2026-10-15,12:00,expense,Food,Groceries,Tesco essentials,-27.46,GBP,,,,simulated,T0172,-514.56,1
+GIG_UK_001,2026-10-15,12:00,expense,Transport,Work fuel,Fuel for delivery shifts,-8.46,GBP,S0049,,,simulated,T0173,-523.02,1
+GIG_UK_001,2026-10-16,12:00,expense,Food,Snacks / meals,Coffee and snack,-9.21,GBP,,,,simulated,T0174,-532.23,1
+GIG_UK_001,2026-10-16,12:00,expense,Transport,Work fuel,Fuel for delivery shifts,-7.23,GBP,S0050,,,simulated,T0175,-539.46,1
+GIG_UK_001,2026-10-17,12:00,expense,Food,Groceries,Lidl groceries,-20.8,GBP,,,,simulated,T0176,-560.26,1
+GIG_UK_001,2026-10-17,12:00,expense,Transport,Work fuel,Fuel for delivery shifts,-13.01,GBP,S0051,,,simulated,T0177,-573.27,1
+GIG_UK_001,2026-10-18,12:00,expense,Transport,Vehicle insurance,Motor insurance,-74,GBP,,INSURANCE-10,,simulated,T0178,-647.27,1
+GIG_UK_001,2026-10-19,12:00,income,Gig income,Platform payout,Weekly delivery payout for 4 shifts,369.15,GBP,,,2026-10-19,simulated,T0179,-278.12,1
+GIG_UK_001,2026-10-19,12:00,expense,Food,Groceries,Aldi grocery shop,-21.98,GBP,,,,simulated,T0180,-300.1,1
+GIG_UK_001,2026-10-19,12:00,expense,Food,Snacks / meals,Meal deal,-8.81,GBP,,,,simulated,T0181,-308.91,1
+GIG_UK_001,2026-10-20,12:00,expense,Food,Snacks / meals,Meal deal,-5.37,GBP,,,,simulated,T0182,-314.28,1
+GIG_UK_001,2026-10-20,12:00,expense,Household,Household supplies,Toiletries and household essentials,-11.07,GBP,,,,simulated,T0183,-325.35,1
+GIG_UK_001,2026-10-20,12:00,expense,Miscellaneous,Personal / health,Pharmacy or personal care,-11.31,GBP,,,,simulated,T0184,-336.66,1
+GIG_UK_001,2026-10-20,12:00,expense,Transport,Work fuel,Fuel for delivery shifts,-13.2,GBP,S0052,,,simulated,T0185,-349.86,1
+GIG_UK_001,2026-10-21,12:00,expense,Food,Snacks / meals,Lunch on the go,-9.26,GBP,,,,simulated,T0186,-359.12,1
+GIG_UK_001,2026-10-22,12:00,expense,Food,Snacks / meals,Lunch on the go,-7.61,GBP,,,,simulated,T0187,-366.73,1
+GIG_UK_001,2026-10-22,12:00,expense,Food,Groceries,Tesco essentials,-22.24,GBP,,,,simulated,T0188,-388.97,1
+GIG_UK_001,2026-10-22,12:00,expense,Recreation,Entertainment,Cinema / social activity,-12.41,GBP,,,,simulated,T0189,-401.38,1
+GIG_UK_001,2026-10-22,12:00,expense,Recreation,Gym membership,Gym subscription,-19,GBP,,GYM-10,,simulated,T0190,-420.38,1
+GIG_UK_001,2026-10-22,12:00,expense,Transport,Work fuel,Fuel for delivery shifts,-13.83,GBP,S0053,,,simulated,T0191,-434.21,1
+GIG_UK_001,2026-10-23,12:00,expense,Transport,Work fuel,Fuel for delivery shifts,-5.84,GBP,S0054,,,simulated,T0192,-440.05,1
+GIG_UK_001,2026-10-24,12:00,expense,Food,Groceries,Aldi grocery shop,-20.36,GBP,,,,simulated,T0193,-460.41,1
+GIG_UK_001,2026-10-24,12:00,expense,Restaurants,Eating out,Takeaway meal,-13.96,GBP,,,,simulated,T0194,-474.37,1
+GIG_UK_001,2026-10-24,12:00,expense,Transport,Work fuel,Fuel for delivery shifts,-8.2,GBP,S0055,,,simulated,T0195,-482.57,1
+GIG_UK_001,2026-10-25,12:00,expense,Debt repayment,Vehicle loan,Monthly vehicle repayment,-62,GBP,,FINANCE-10,,simulated,T0196,-544.57,1
+GIG_UK_001,2026-10-26,12:00,income,Gig income,Platform payout,Weekly delivery payout for 4 shifts,396.27,GBP,,,2026-10-26,simulated,T0197,-148.3,1
+GIG_UK_001,2026-10-26,12:00,expense,Food,Groceries,Tesco essentials,-26.89,GBP,,,,simulated,T0198,-175.19,1
+GIG_UK_001,2026-10-26,12:00,expense,Recreation,Entertainment,Cinema / social activity,-20.98,GBP,,,,simulated,T0199,-196.17,1
+GIG_UK_001,2026-10-26,12:00,expense,Transport,Work fuel,Fuel for delivery shifts,-5.65,GBP,S0056,,,simulated,T0200,-201.82,1
+GIG_UK_001,2026-10-27,12:00,expense,Transport,Work fuel,Fuel for delivery shifts,-9.66,GBP,S0057,,,simulated,T0201,-211.48,1
+GIG_UK_001,2026-10-29,12:00,expense,Food,Groceries,Tesco essentials,-28.17,GBP,,,,simulated,T0202,-239.65,1
+GIG_UK_001,2026-10-29,12:00,expense,Recreation,Entertainment,Cinema / social activity,-22.91,GBP,,,,simulated,T0203,-262.56,1
+GIG_UK_001,2026-10-29,12:00,expense,Transport,Work fuel,Fuel for delivery shifts,-8.83,GBP,S0058,,,simulated,T0204,-271.39,1
+GIG_UK_001,2026-10-30,12:00,expense,Transport,Work fuel,Fuel for delivery shifts,-9.26,GBP,S0059,,,simulated,T0205,-280.65,1
+GIG_UK_001,2026-10-31,12:00,expense,Food,Groceries,Tesco essentials,-30.68,GBP,,,,simulated,T0206,-311.33,1
+GIG_UK_001,2026-10-31,12:00,expense,Transport,Work fuel,Fuel for delivery shifts,-7.79,GBP,S0060,,,simulated,T0207,-319.12,1
