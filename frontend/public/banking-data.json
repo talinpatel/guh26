@@ -16,6 +16,7 @@
   ],
   "upcomingBills": [
     { "name": "Phone (Three)", "amount": 15.0, "dueDate": "2026-11-16" },
+    { "name": "Electricity", "amount": 48.0, "dueDate": "2026-11-18" },
     { "name": "Spotify", "amount": 11.99, "dueDate": "2026-11-20" },
     { "name": "Groceries (est.)", "amount": 160.0, "dueDate": "2026-11-27" },
     { "name": "Rent", "amount": 650.0, "dueDate": "2026-11-28" }
