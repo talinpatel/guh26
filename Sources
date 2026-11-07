@@ -1,0 +1,5 @@
+Add any sources u found for like data or any statistics used.
+
+1) For spending amounts, transaction dates and categories. This is the foundation of your synthetic bank statements.https://www.kaggle.com/datasets/tharunprabu/my-expenses-data?utm_source=chatgpt.com
+2) For gig-worker earnings and behaviour. I'll inspect the available variables to determine which ones can inform the income model.https://dataverse.harvard.edu/dataset.xhtml?persistentId=doi:10.7910%2FDVN%2FYJVSOI&utm_source=chatgpt.com
+3) Download the 2025 Excel workbook. It gives UK household expenditure information by income and household characteristics.https://www.ons.gov.uk/peoplepopulationandcommunity/personalandhouseholdfinances/expenditure/datasets/familyspendingworkbook2expenditurebyincome?utm_source=chatgpt.com
