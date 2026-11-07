@@ -1,30 +1,37 @@
-import { useState } from 'react'
-import { Plus } from 'lucide-react'
-import Nav from './Nav.tsx'
+import { useState } from "react";
+import { Plus } from "lucide-react";
+import Nav from "./Nav.tsx";
+import { PREFS } from "../constants/onboarding.ts";
 
-const EXAMPLES = ['Keep Sundays free', 'Max 20 hours a week', 'No work before 12pm', 'I ride for Deliveroo and Uber Eats']
-
-export default function PrefsStep({ onBack, onNext }: { onBack: () => void; onNext: () => void }) {
-  const [value, onChange] = useState('')
+export default function PrefsStep({
+  onBack,
+  onNext,
+}: {
+  onBack: () => void;
+  onNext: () => void;
+}) {
+  const [value, onChange] = useState("");
   return (
     <>
-      <h2 id="step-title" className="text-2xl font-semibold text-stone-900">Describe your schedule preferences</h2>
-      <p className="mt-1 text-sm text-stone-500">Tell us in your own words: hours, days off, platforms, anything.</p>
+      <h2 id="step-title" className="text-2xl font-semibold text-stone-900">
+        {PREFS.title}
+      </h2>
+      <p className="mt-1 text-sm text-stone-500">{PREFS.subtitle}</p>
 
       <label htmlFor="prefs" className="sr-only">
-        Work preferences
+        {PREFS.label}
       </label>
       <textarea
         id="prefs"
         value={value}
         onChange={(e) => onChange(e.target.value)}
         rows={5}
-        placeholder="e.g. I ride for Deliveroo and Uber Eats. Keep Sundays free, max 20 hours a week."
+        placeholder={PREFS.placeholder}
         className="mt-5 w-full resize-none rounded-2xl border border-stone-200 bg-paper p-4 text-sm placeholder:text-stone-400 focus:border-brand-500 focus:ring-4 focus:ring-brand-100 focus:outline-none"
       />
 
       <div className="mt-3 flex flex-wrap gap-2">
-        {EXAMPLES.map((ex) => (
+        {PREFS.examples.map((ex) => (
           <button
             key={ex}
             onClick={() => onChange(value ? `${value.trim()}. ${ex}` : ex)}
@@ -37,5 +44,5 @@ export default function PrefsStep({ onBack, onNext }: { onBack: () => void; onNe
 
       <Nav onBack={onBack} onNext={onNext} />
     </>
-  )
+  );
 }

@@ -1,13 +1,14 @@
 import { ArrowLeft, ArrowRight } from 'lucide-react'
+import { NAV } from '../constants/onboarding.ts'
 
 type Props = { onBack?: () => void; onNext: () => void; nextLabel?: string; disabled?: boolean }
 
-export default function Nav({ onBack, onNext, nextLabel = 'Continue', disabled }: Props) {
+export default function Nav({ onBack, onNext, nextLabel = NAV.next, disabled }: Props) {
   return (
     <div className="mt-8 flex justify-between">
       {onBack ? (
         <button onClick={onBack} className="inline-flex items-center gap-1.5 rounded-xl px-4 py-2.5 text-sm font-medium text-stone-600 hover:bg-stone-100">
-          <ArrowLeft className="size-4" /> Back
+          <ArrowLeft className="size-4" /> {NAV.back}
         </button>
       ) : (
         <span />

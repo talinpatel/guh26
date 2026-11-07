@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { CheckCircle2, Upload } from 'lucide-react'
 import Nav from './Nav.tsx'
+import { BANK } from '../constants/onboarding.ts'
 
 export default function BankStep({ onBack, onNext }: { onBack: () => void; onNext: () => void }) {
   const [file, setFile] = useState('')
@@ -8,8 +9,8 @@ export default function BankStep({ onBack, onNext }: { onBack: () => void; onNex
 
   return (
     <>
-      <h2 id="step-title" className="text-2xl font-semibold text-stone-900">Connect your bank</h2>
-      <p className="mt-1 text-sm text-stone-500">Upload your banking data so we know what's coming in and going out.</p>
+      <h2 id="step-title" className="text-2xl font-semibold text-stone-900">{BANK.title}</h2>
+      <p className="mt-1 text-sm text-stone-500">{BANK.subtitle}</p>
 
       <label
         onDragOver={(e) => {
@@ -27,18 +28,18 @@ export default function BankStep({ onBack, onNext }: { onBack: () => void; onNex
         }`}
       >
         <Upload className={`size-7 ${dragging ? 'text-brand-600' : 'text-stone-400'}`} />
-        <span className="text-sm font-medium text-stone-700">{dragging ? 'Drop it here' : 'Drag & drop your banking data'}</span>
-        <span className="text-xs text-stone-500">or click to browse · .json</span>
+        <span className="text-sm font-medium text-stone-700">{dragging ? BANK.drop : BANK.drag}</span>
+        <span className="text-xs text-stone-500">{BANK.browse}</span>
         <input type="file" accept=".json,application/json" className="sr-only" onChange={(e) => e.target.files?.[0] && setFile(e.target.files[0].name)} />
       </label>
 
       {file && (
         <div className="mt-5 flex items-center gap-2 text-sm font-medium text-brand-800">
-          <CheckCircle2 className="size-5 text-brand-600" /> {file} uploaded
+          <CheckCircle2 className="size-5 text-brand-600" /> {file} {BANK.uploaded}
         </div>
       )}
 
-      <Nav onBack={onBack} onNext={onNext} nextLabel="Build my schedule" disabled={!file} />
+      <Nav onBack={onBack} onNext={onNext} nextLabel={BANK.next} disabled={!file} />
     </>
   )
 }
