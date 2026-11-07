@@ -1,0 +1,23 @@
+{
+  "account": { "name": "Alex Rivera", "balance": 312.4, "currency": "GBP" },
+  "transactions": [
+    { "date": "2026-10-03", "description": "Deliveroo payout", "amount": 184.2 },
+    { "date": "2026-10-05", "description": "Tesco", "amount": -38.65 },
+    { "date": "2026-10-10", "description": "Uber Eats payout", "amount": 142.8 },
+    { "date": "2026-10-12", "description": "TfL", "amount": -24.1 },
+    { "date": "2026-10-15", "description": "Student loan", "amount": 1150.0 },
+    { "date": "2026-10-17", "description": "Deliveroo payout", "amount": 96.5 },
+    { "date": "2026-10-20", "description": "Spotify", "amount": -11.99 },
+    { "date": "2026-10-24", "description": "Uber Eats payout", "amount": 121.35 },
+    { "date": "2026-10-28", "description": "Rent", "amount": -650.0 },
+    { "date": "2026-10-30", "description": "Pret", "amount": -7.45 },
+    { "date": "2026-11-02", "description": "Three Mobile", "amount": -15.0 },
+    { "date": "2026-11-04", "description": "Tesco", "amount": -42.3 }
+  ],
+  "upcomingBills": [
+    { "name": "Phone (Three)", "amount": 15.0, "dueDate": "2026-11-16" },
+    { "name": "Spotify", "amount": 11.99, "dueDate": "2026-11-20" },
+    { "name": "Groceries (est.)", "amount": 160.0, "dueDate": "2026-11-27" },
+    { "name": "Rent", "amount": 650.0, "dueDate": "2026-11-28" }
+  ]
+}
